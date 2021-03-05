@@ -1,0 +1,5 @@
+package Circuit
+
+class LeafState {
+
+}
