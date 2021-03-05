@@ -2,18 +2,22 @@ package System
 
 import MemoryCell.MemoryCell
 
+import java.util.{Timer, TimerTask}
+
 class System {
 
-  private var sysArray = new Array[MemoryCell](100)
+  private var sysArray = new Array[MemoryCell](100) //operate via parallel computing collection
 
-  def tFold(): Unit = {
-
+  class Action extends TimerTask {
+    def run() {
+      hilo = !hilo
+    }
   }
 
-  def tMap() {
+  private var hilo:Boolean = true
+  def run(): Unit = {
+    val timer = new Timer()
+    timer.schedule(new Action(), 0, 1000)
   }
 
-  def tScanL: Unit = {
-
-  }
 }
