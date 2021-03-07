@@ -2,6 +2,6 @@ import org.scalatest.FunSuite
 
 class Test extends FunSuite {
   test("CubeCalculator.cube") {
-    EFSA().hello();
+    ESFAArray().update(0,0,false)
   }
 }

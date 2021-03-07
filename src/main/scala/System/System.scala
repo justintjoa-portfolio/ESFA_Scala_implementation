@@ -1,12 +1,13 @@
 package System
 
-import MemoryCell.MemoryCell
+import Circuit.Components.Primitive.MemoryCell
+import Circuit.ESFMachine
 
 import java.util.{Timer, TimerTask}
 
-class System {
+class System(private var esfMachine:ESFMachine) {
 
-  private var sysArray = new Array[MemoryCell](100) //operate via parallel computing collection
+
 
   class Action extends TimerTask {
     def run() {
