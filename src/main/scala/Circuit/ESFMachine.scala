@@ -1,11 +1,10 @@
 package Circuit
 
-import Circuit.Components.ESFComponent
-import Circuit.Components.Primitive.MemoryCell
+import Circuit.Components.Primitive.{CircuitComponent, MemoryCell}
 
-class ESFMachine(private var esfMachineArray: Array[ESFComponent]) {
+class ESFMachine(private var esfMachineArray: Array[CircuitComponent]) {
 
-
+  var _mappings:Map[Int, Int] = Map()
 
 
   def sweep(): Unit = {
@@ -22,4 +21,11 @@ class ESFMachine(private var esfMachineArray: Array[ESFComponent]) {
   def tScanL: Unit = {
 
   }
+
+  def allocate(index:Int, value:Int): Unit = {
+
+  }
+
+
+
 }

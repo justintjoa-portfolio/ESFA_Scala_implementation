@@ -12,6 +12,14 @@ case class MemoryCell(var array_handle: Int,
 
   var eltDef: Boolean = false;
 
+  var _notify: Boolean = false;
+  var zombie: Boolean = false;
 
-  //notify, zombie, select, and mark will be implemented in the lowest level API
+  var select: Boolean = false;
+
+  var mark: Boolean = false;
+
+
+
+
 }

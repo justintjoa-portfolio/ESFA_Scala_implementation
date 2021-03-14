@@ -1,15 +1,18 @@
+import Circuit.ESFMachine
+
 //let's assume array only carries ints for now
-case class ESFAArray() {
+case class ESFAArray(esfMachine: ESFMachine) {
+
+
   def empty(): Option[ESFAArray] = {
     return None
   }
 
-  def update(index:Int, value:Int, isPointerToHeap:Boolean): Option[ESFAArray] = {
+  def update(handle:Int, index:Int, value:Int, isPointerToHeap:Boolean): Unit = {
     print("hello!")
-    return None
   }
 
-  def lookUp(index:Int): Option[Int] = {
+  def lookUp(handle: Int, index:Int): Option[Int] = {
     return None
   }
 
