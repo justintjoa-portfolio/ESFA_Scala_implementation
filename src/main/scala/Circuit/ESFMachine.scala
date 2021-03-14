@@ -6,21 +6,31 @@ class ESFMachine(private var esfMachineArray: Array[CircuitComponent]) {
 
   var _mappings:Map[Int, Int] = Map()
 
-  def encodeSR(exists:Boolean, handle:Int): (Option[Int], Int) = {
+  def encodeSR(exists:Boolean, handle:Int, choose:
+  (CircuitComponent, CircuitComponent) => (CircuitComponent)): Option[(Int, Int)] = { //code and rank
     if (!exists) {
-      return (None, 0)
+      None
     }
+    tFold(esfMachineArray, choose)
+
     //parallel associative search for cell
   }
+
+  def tFold(esfMachineArray: Array[CircuitComponent],
+            choose: (CircuitComponent, CircuitComponent) =>
+              (CircuitComponent)): Option[(Int, Int)] = {
+    //go through the array and use chose function to find the right value
+    //if choose selects something, in next "iteration" you can do nothing
+    //can also return nothing
+    return Some((0, 0)) //stub
+  }
+
 
 
   def sweep(): Unit = {
 
   }
 
-  def tFold(): Unit = {
-
-  }
 
   def tMap(): Unit = {
   }
