@@ -6,6 +6,13 @@ class ESFMachine(private var esfMachineArray: Array[CircuitComponent]) {
 
   var _mappings:Map[Int, Int] = Map()
 
+  def encodeSR(exists:Boolean, handle:Int): (Option[Int], Int) = {
+    if (!exists) {
+      return (None, 0)
+    }
+    //parallel associative search for cell
+  }
+
 
   def sweep(): Unit = {
 
