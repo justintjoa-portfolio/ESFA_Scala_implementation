@@ -26,11 +26,11 @@ class CircuitComponent(private var _memoryCell: MemoryCell)  {
 
   def compareRanksR(mark:Boolean, rank1:Int, rank2:Int, outReference1:Int, outReference2:Int ): (Int, Int) = {
     if (mark) {
-      if (rank1 > rank2) {
-        return (rank1, outReference1)
+      if (rank2 > rank1) {
+        return (rank2, outReference2)
       }
       else {
-        return (rank2, outReference2)
+        return (rank1, outReference1)
       }
     }
     return (rank1, outReference1)
