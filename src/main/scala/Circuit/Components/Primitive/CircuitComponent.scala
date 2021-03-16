@@ -11,11 +11,10 @@ class CircuitComponent(private var _memoryCell: MemoryCell)  {
   var outputReference: Int = 0
 
   //pure
-  def checkEligibility(index: Int, code:Int, currentIndex: Int,
-                       low: Int, high: Int): Option[() => Unit] = {
-    if ((index == currentIndex) &&
-      (code >= low) &&
-      (code <= high)) {
+  def checkEligibility(index: Int, code:Int, memoryCell:MemoryCell): Option[() => Unit] = {
+    if ((index == memoryCell.index) &&
+      (code >= memoryCell.low) &&
+      (code <= memoryCell.high)) {
         return Some(
           () =>
             _memoryCell.mark = true
@@ -37,20 +36,20 @@ class CircuitComponent(private var _memoryCell: MemoryCell)  {
     return (rank1, outReference1)
   }
 
-  def deleteCellR(code: Int, low:Int, high:Int): Option[() => Unit] = {
-    if ((low <= code) && (code <= high)) {
-      if ((low == code) && (code == high)) {
+  def deleteCellR(code: Int, memoryCell: MemoryCell): Option[() => Unit] = {
+    if ((memoryCell.low <= code) && (code <= memoryCell.high)) {
+      if ((memoryCell.low == code) && (code == memoryCell.high)) {
         return Some(
-          () =>
+          () => {
             _memoryCell.arrDef = false
+            _memoryCell.eltDef = false;
+          }
         )
       }
       else {
         return Some(
-          () => {
-            _memoryCell.arrDef = false;
-            _memoryCell.eltDef = false;
-          }
+          () =>
+            _memoryCell.arrDef = false
         )
       }
     }
@@ -78,6 +77,8 @@ class CircuitComponent(private var _memoryCell: MemoryCell)  {
         _memoryCell.array_code+=1;
         _memoryCell.low+=1
         _memoryCell.high+=1
+        _memoryCell.index = index
+        _memoryCell.value = value
       }
     )
   }
@@ -86,7 +87,7 @@ class CircuitComponent(private var _memoryCell: MemoryCell)  {
 
   //impure
   def markIfEligible(index: Int, code:Int): Unit = {
-    checkEligibility(index, code, _memoryCell.index, _memoryCell.low, _memoryCell.high).foreach(
+    checkEligibility(index, code, _memoryCell).foreach(
       (function) => function()
     )
   }
@@ -102,7 +103,7 @@ class CircuitComponent(private var _memoryCell: MemoryCell)  {
   }
 
   def deleteCell(code:Int): Unit = {
-    deleteCellR(code, _memoryCell.low, _memoryCell.high).foreach(
+    deleteCellR(code, _memoryCell).foreach(
       (function) => function()
     )
 
