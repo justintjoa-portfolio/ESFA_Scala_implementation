@@ -6,41 +6,58 @@ class ESFMachine(private var esfMachineArray: Array[CircuitComponent]) {
 
   var _mappings:Map[Int, Int] = Map()
 
-  def encodeSR(exists:Boolean, handle:Int, choose:
-  (CircuitComponent, CircuitComponent) => (CircuitComponent)): Option[(Int, Int)] = { //code and rank
-    if (!exists) {
-      None
+  val highestHandle:Int = 100
+
+  var lowestHandle: Int = 0
+
+
+  //pure
+
+  def updateExistentArray(input: Option[Int], code: Int, index: Int, value: Int): Option[() => Unit] = {
+    if (input isDefined) {
+
     }
-    tFold(esfMachineArray, choose)
-
-    //parallel associative search for cell
+    else {
+      return Some(
+        () => {
+          esfMachineArray(lowestHandle).allocate(code, index, value)
+          lowestHandle+=1
+        }
+      )
+    }
   }
 
-  def tFold(esfMachineArray: Array[CircuitComponent],
-            choose: (CircuitComponent, CircuitComponent) =>
-              (CircuitComponent)): Option[(Int, Int)] = {
-    //go through the array and use chose function to find the right value
-    //if choose selects something, in next "iteration" you can do nothing
-    //can also return nothing
-    return Some((0, 0)) //stub
+  def updateR(ifInMap:Boolean, identifier:Int, index:Int, value:Int): Option[() => Unit] = {
+    if (!ifInMap) {
+      return Some(() => {
+        esfMachineArray(lowestHandle).allocate(lowestHandle, index, value)
+        _mappings + (identifier, lowestHandle)
+        lowestHandle+=1
+      })
+    }
+    else {
+      return Some(() => {
+        updateExistentArray(lookUp(identifier, index), identifier, index, value).foreach(
+          function => function()
+        )
+      })
+    }
   }
 
 
+  //impure
 
   def sweep(): Unit = {
 
   }
 
+  def update(identifier:Int, index:Int, value:Int): Unit = {
 
-  def tMap(): Unit = {
-  }
-
-  def tScanL: Unit = {
 
   }
 
-  def allocate(index:Int, value:Int): Unit = {
-
+  def lookUp(identifier: Int, index:Int): Option[Int] = {
+    return None
   }
 
 

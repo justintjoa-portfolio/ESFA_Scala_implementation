@@ -65,23 +65,27 @@ class CircuitComponent(private var _memoryCell: MemoryCell)  {
     return None;
   }
 
-  def allocateR(memoryCell: MemoryCell, index: Int,
-                value: Int): Option[() => Unit] = {
-    if (memoryCell.arrDef) {
-      return None
+
+  def allocateR(arrDef:Boolean, code:Int, index:Int, value:Int): (Either[String, Nothing], Option[() => Unit]) = {
+    if (arrDef) {
+      return (Left("Array already exists here"), None);
     }
-    return Some(
-      () => {
-        _memoryCell.arrDef = true;
-        _memoryCell.eltDef = true;
-        _memoryCell.array_code+=1;
-        _memoryCell.low+=1
-        _memoryCell.high+=1
-        _memoryCell.index = index
-        _memoryCell.value = value
-      }
-    )
+    else {
+      return (Right(), Some(
+        () => {
+          _memoryCell.arrDef = true;
+          _memoryCell.eltDef = true;
+          _memoryCell.array_code = code;
+          _memoryCell.low = code;
+          _memoryCell.high = code;
+          _memoryCell.index = index;
+          _memoryCell.value = value;
+        }
+      ))
+    }
+
   }
+
 
 
 
@@ -113,8 +117,12 @@ class CircuitComponent(private var _memoryCell: MemoryCell)  {
     return getCodeR(_memoryCell, handle);
   }
 
-  def allocate(): Unit = {
-
+  def allocate(code:Int, index:Int, value:Int): Either[String, String] = {
+    val result = allocateR(_memoryCell.arrDef, code, index, value)
+    result._2.foreach(
+      (function) => function()
+    )
+    return result._1
   }
 
 
