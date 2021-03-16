@@ -4,7 +4,7 @@ import Circuit.Components.Primitive.{CircuitComponent, MemoryCell}
 
 class ESFMachine(private var esfMachineArray: Array[CircuitComponent]) {
 
-
+  var _mappings:Map[Int, Int] = Map()
 
   def encodeSR(exists:Boolean, handle:Int, choose:
   (CircuitComponent, CircuitComponent) => (CircuitComponent)): Option[(Int, Int)] = { //code and rank

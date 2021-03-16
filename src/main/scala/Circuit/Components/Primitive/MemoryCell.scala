@@ -3,8 +3,6 @@ package Circuit.Components.Primitive
 case class MemoryCell(var array_handle: Int,
                       var array_code: Int, var index: Int,
                       var value: Int, var rank: Int,
-                      var low: Int,
-                      var high: Int,
                       var reference:Int) {
 
 
@@ -12,6 +10,9 @@ case class MemoryCell(var array_handle: Int,
 
 
   var eltDef: Boolean = false;
+
+  var low: Int = 0
+  var high: Int = 0
 
   var _notify: Boolean = false;
   var zombie: Boolean = false;
