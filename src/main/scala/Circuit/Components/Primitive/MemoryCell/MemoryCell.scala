@@ -1,9 +1,9 @@
-package Circuit.Components.Primitive
+package Circuit.Components.Primitive.MemoryCell
 
 case class MemoryCell(var array_handle: Int,
                       var array_code: Int, var index: Int,
                       var value: Int, var rank: Int,
-                      var reference:Int) {
+                      var reference: Int) {
 
 
   var arrDef: Boolean = false;
@@ -20,8 +20,6 @@ case class MemoryCell(var array_handle: Int,
   var select: Boolean = false;
 
   var mark: Boolean = false;
-
-
 
 
 }

@@ -1,4 +1,4 @@
-import Circuit.ESFMachine
+import Circuit.Components.Primitive.ESFMachine.ESFMachine
 
 //let's assume array only carries ints for now
 case class ESFAArray(esfMachine: ESFMachine) {
