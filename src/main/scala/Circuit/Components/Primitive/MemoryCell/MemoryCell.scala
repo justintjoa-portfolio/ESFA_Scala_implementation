@@ -1,17 +1,16 @@
 package Circuit.Components.Primitive.MemoryCell
 
-case class MemoryCell(var array_handle: Int,
-                      var array_code: Int, var index: Int,
-                      var value: Int,
-                      var rank: Int,
-                      //rank of the element is the distance (in number of updates) of the element from empty.
-                      var reference: Int) {
+case class MemoryCell(var array_handle: Int) {
   //note: the handle of the tail of a potential array in memory,
   //assuming potential array is made array in code
   //is the same as handle of the array
 
 
-
+  var array_code: Int = 0
+  var index: Int = 0
+  var value: Int = 0
+  var rank: Int = 0
+  //rank of the element is the distance (in number of updates) of the element from empty.
 
   var arrDef: Boolean = false;
 
