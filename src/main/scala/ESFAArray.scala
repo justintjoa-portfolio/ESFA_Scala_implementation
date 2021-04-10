@@ -4,7 +4,7 @@ import Circuit.Components.Primitive.ESFMachine.ESFMachine
 case class ESFAArray(esfMachine: ESFMachine) {
 
 
-  def update(targetIdentifier:Int, identifier:Int, index:Int, value:Int): Either[String, Int] = {
+  def update(targetIdentifier:Option[Int], identifier:Int, index:Int, value:Int): Either[String, Int] = {
     return Right(1)
   }
 

@@ -2,7 +2,7 @@ package Circuit.Components.Primitive.CircuitComponent
 
 import Circuit.Components.Primitive.MemoryCell.MemoryCell
 
-class CircuitComponent(private var _memoryCell: MemoryCell)  {
+class CircuitComponent(var _memoryCell: MemoryCell)  {
 
   var inputPort: Int = 0
 
@@ -44,6 +44,10 @@ class CircuitComponent(private var _memoryCell: MemoryCell)  {
 
   }
 
+
+  def initCell(identifier: Int): Unit = {
+
+  }
 
   def allocate(code:Int, index:Int, value:Int): Unit = {
     CircuitComponentModule().allocate(_memoryCell.arrDef,
