@@ -30,14 +30,14 @@ class ESFMachine(private var esfMachineArray: Array[CircuitComponent]) {
 
   }
 
-  def encode(identifier: Option[Int]): Option[Int] = {
+  def encode(identifier: Option[Int]): (Option[Int], Int) = {
     //Stub!
     //given an array identifier, get its handle,
-    //then using the handle get its current code
+    //then using the handle get its current code and rank (number of updates to empty array)
     if (identifier isEmpty)
-      return Some(0)
+      return (Some(0), 0)
     else
-      return Some(1) //fix this to actually give the correct code
+      return (Some(1), 1) //fix this to actually give the correct code
   }
 
   def sweep(): Unit = {
