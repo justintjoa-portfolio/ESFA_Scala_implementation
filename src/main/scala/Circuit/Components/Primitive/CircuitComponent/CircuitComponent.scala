@@ -18,6 +18,15 @@ class CircuitComponent(private var _memoryCell: MemoryCell)  {
       _memoryCell.mark = true)()
   }
 
+  def availableHandle(): Option[Int] = {
+    if (! _memoryCell.eltDef && ! _memoryCell.arrDef || ! _memoryCell.zombie) {
+      return Some(_memoryCell.array_handle)
+    }
+    else {
+      return None
+    }
+  }
+
 
 
   def compareRanks(): Unit = {
