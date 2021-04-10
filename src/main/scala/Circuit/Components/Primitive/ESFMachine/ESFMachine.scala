@@ -4,7 +4,7 @@ import Circuit.Components.Primitive.CircuitComponent.CircuitComponent
 
 class ESFMachine(private var esfMachineArray: Array[CircuitComponent]) {
 
-  var _mappings:Map[Int, Int] = Map()
+  var _mappings:Map[Int, Int] = Map() //maps array identifier to its current handle
 
   val highestHandle:Int = 100
 
@@ -28,6 +28,13 @@ class ESFMachine(private var esfMachineArray: Array[CircuitComponent]) {
       () => updateExistentArray(lookUp(identifier, index), identifier, index, value)
     )()
 
+  }
+
+  def encode(identifer: Int): Int = {
+    //Stub!
+    //given an array identifier, get its handle,
+    //then using the handle get its current code
+    return 0
   }
 
   def sweep(): Unit = {
