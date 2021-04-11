@@ -5,14 +5,14 @@ case class MemoryCell(var array_handle: Int) {
   //assuming potential array is made array in code
   //is the same as handle of the array
 
-
+  var arrDef: Boolean = false
   var array_code: Int = 0
   var index: Int = 0
   var value: Int = 0
   var rank: Int = 0
   //rank of the element is the distance (in number of updates) of the element from empty.
 
-  var arrDef: Boolean = false;
+
 
 
   var eltDef: Boolean = false;

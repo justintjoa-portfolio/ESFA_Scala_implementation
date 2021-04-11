@@ -4,13 +4,13 @@ import Circuit.Components.Primitive.MemoryCell.MemoryCell
 
 case class CircuitComponentModule() {
 
-  def checkEligibility(index: Int, code:Int, memoryCell:MemoryCell, action: () => Unit): () => Unit = {
+  def checkEligibility(index: Int, code:Int, memoryCell:MemoryCell, action: () => Unit, markUntrue: () => Unit): () => Unit = {
     if ((index == memoryCell.index) &&
       (code >= memoryCell.low) &&
       (code <= memoryCell.high)) {
       action
     }
-    return  () => Unit
+    return  markUntrue
   }
 
   def compareRanks(mark:Boolean, rank1:Int, rank2:Int, outReference1:Int, outReference2:Int ): (Int, Int) = {

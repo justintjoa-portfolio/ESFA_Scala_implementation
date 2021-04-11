@@ -15,7 +15,7 @@ class CircuitComponent(var _memoryCell: MemoryCell)  {
 
   def markIfEligible(index: Int, code:Int): Unit = {
     CircuitComponentModule().checkEligibility(index, code, _memoryCell, () =>
-      _memoryCell.mark = true)()
+      _memoryCell.mark = true, () => _memoryCell.mark = false)()
   }
 
   def availableHandle(): Option[Int] = {

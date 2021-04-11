@@ -1,8 +1,9 @@
 package Circuit.Components.Primitive.ESFMachine
 
 import Circuit.Components.Primitive.CircuitComponent.CircuitComponent
-
+import scala.math.Ordering.Implicits.infixOrderingOps
 import scala.collection.parallel.CollectionConverters.ArrayIsParallelizable
+import scala.math.Ordering.Implicits.infixOrderingOps
 
 
 case class ESFMachineModule() {
@@ -11,25 +12,39 @@ case class ESFMachineModule() {
     return Right(1)
   }
 
-  def copyArray(identifier: Int, newIdentifier: Int): Boolean = {
-    return true;
+  def copyArray(inputMap: Map[Int, Int], addArray: () => Unit,
+                originalIdentifier: Int, arrayIdentifier: Int, highestHandle: Int):
+              (Either[String, (Map[Int, Int], () => Unit)]) = {
+    if (! inputMap.contains(arrayIdentifier) && inputMap.contains(originalIdentifier)) {
+      return Right(inputMap + (arrayIdentifier -> highestHandle), addArray)
+    }
+    else {
+      return Left("Either original array doesn't exist, or target array already exists!")
+    };
   }
 
   def lookUp(inputMap: Map[Int, Int], esfMachineArray: Array[CircuitComponent], identifier: Int, index:Int): Option[Int] = {
-    //for all elements in esfMachineArray, set mark = true for elements where
-    //low <= code <= high
-    //then, in the second sweep, for all elements that mark = true
-    //get element with highest rank and return its value
     if (inputMap.contains(identifier)) {
       inputMap.get(identifier).map(
         (index) => {
           //reference ending of section 6.5 of paper for algorithm
           val code = esfMachineArray(index)._memoryCell.array_code
-          esfMachineArray.map(
-            (esfMachine) => esfMachine.markIfEligible(index, code) //sweep 1
-          ).par.fold(0)((component1: CircuitComponent, component2: CircuitComponent) => {
-            component1._memoryCell.rank.max(component2._memoryCell.rank)
-          })
+          val markedArray = esfMachineArray.map(
+            (esfMachine) => {
+              esfMachine.markIfEligible(index, code)
+              esfMachine
+            } //sweep 1
+          ).filter(
+            _._memoryCell.mark == true
+          )
+          markedArray.par.fold(markedArray(0))(
+            (a, b) => {
+              if (a._memoryCell.rank > b._memoryCell.rank) {
+                a
+              }
+              b;
+            }
+          )._memoryCell.value
         }
       ).orElse(
         return None
@@ -41,7 +56,10 @@ case class ESFMachineModule() {
   }
 
   def initArray(inputMap: Map[Int, Int], identifier: Int, action: () => Unit): Either[String, () => Unit] = {
-    if (! inputMap.contains(identifier)) {
+
+
+
+  if (! inputMap.contains(identifier)) {
       return Right(action)
     }
     else {
@@ -49,9 +67,9 @@ case class ESFMachineModule() {
     };
   }
 
-  def delete(inputMap: Map[Int, Int], arrayIdentifier: Int, deleteArray: () => Unit): Either[String, () => Unit] = {
+  def delete(inputMap: Map[Int, Int], deleteFromArray: () => Unit, arrayIdentifier: Int): (Either[String, (Map[Int, Int], () => Unit)]) = {
     if (inputMap.contains(arrayIdentifier)) {
-      return Right(deleteArray)
+      Right(inputMap.-(arrayIdentifier), deleteFromArray)
     }
     else {
       return Left("Array does not exist!")
