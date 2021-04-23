@@ -4,6 +4,5 @@ import Circuit.Components.Primitive.CircuitComponent.CircuitComponent
 
 case class ESFMachineState(
                             esfMachineStack: Array[CircuitComponent],
-                            lowestHandle: Int,
-                            highestHandle: Int
+                            highestHandle: Int,
                           )
