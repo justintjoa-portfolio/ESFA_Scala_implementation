@@ -4,23 +4,15 @@ import Circuit.Components.Primitive.ESFMachine.ESFMachine
 case class ESFAArray(esfMachine: ESFMachine) {
 
 
-  def update(targetIdentifier:Option[Int], identifier:Int, index:Int, value:Int): Either[String, Int] = {
-    return Right(1)
+  def update(index:Int, value:Int): Option[String] = {
+    
   }
 
-  def copyArray(identifier: Int, newIdentifier: Int): Boolean = {
-    return true;
-  }
-
-  def lookUp(identifier: Int, index:Int): Option[Int] = {
+  def lookUp(index:Int): Option[Int] = {
     return None
   }
 
-  def initArray(identifier: Int): Boolean = {
-    return true;
-  }
-
-  def delete(identifier:Int): Boolean = {
+  def delete(identifier:Int): Option[String] = {
     return true;
   }
 

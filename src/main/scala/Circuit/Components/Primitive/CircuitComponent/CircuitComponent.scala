@@ -1,65 +1,46 @@
 package Circuit.Components.Primitive.CircuitComponent
 
+import Circuit.Components.Primitive.CircuitComponent.State.CircuitComponentState
 import Circuit.Components.Primitive.MemoryCell.MemoryCell
 
-class CircuitComponent(var _memoryCell: MemoryCell)  {
+class CircuitComponent(private val reference:Int)  {
 
-  var inputPort: Int = 0
+  private var state: CircuitComponentState = CircuitComponentState(
+    MemoryCell(reference),
+  0,
+  0,
+  0,
+  0
+  )
 
-  var inputReference: Int = 0
 
-  var outputPort: Int = 0
+  val module = CircuitComponentModule()
 
-  var outputReference: Int = 0
-
-
-  def markIfEligible(index: Int, code:Int): Unit = {
-    CircuitComponentModule().checkEligibility(index, code, _memoryCell, () =>
-      _memoryCell.mark = true, () => _memoryCell.mark = false)()
+  def expose(): CircuitComponentState = {
+    return state
   }
 
-  def availableHandle(): Option[Int] = {
-    if (! _memoryCell.eltDef && ! _memoryCell.arrDef || ! _memoryCell.zombie) {
-      return Some(_memoryCell.array_handle)
-    }
-    else {
-      return None
-    }
+  def checkEligibility(index: Int, code:Int): Unit = {
+    state = module.checkEligibility(state, index, code)
   }
 
 
 
-  def compareRanks(): Unit = {
-    val results = CircuitComponentModule().compareRanks(_memoryCell.mark, inputPort, _memoryCell.rank, inputReference, _memoryCell.reference)
-    outputPort = results._1
-    outputReference = results._2
-  }
-
-  def deleteCell(code:Int): Unit = {
-    CircuitComponentModule().deleteCell(code, _memoryCell, () => {
-      _memoryCell.arrDef = false
-      _memoryCell.eltDef = false;
-    }, () =>
-      _memoryCell.arrDef = false)()
+  def compareRanks(reference:Int, competingRank: Int, competingReference:Int): Unit = {
+    state = module.compareRanks(state, reference, competingRank, competingReference)
 
   }
 
 
-  def initCell(identifier: Int): Unit = {
-
+  def deleteCell(code: Int): Unit = {
+    state = module.deleteCell(state, code)
   }
+
+
 
   def allocate(code:Int, index:Int, value:Int): Unit = {
-    CircuitComponentModule().allocate(_memoryCell.arrDef,
-      () => {
-        _memoryCell.arrDef = true;
-        _memoryCell.eltDef = true;
-        _memoryCell.array_code = code;
-        _memoryCell.low = code;
-        _memoryCell.high = code;
-        _memoryCell.index = index;
-        _memoryCell.value = value;
-      })()
+    state = module.allocate(state, code, index, value)
+
   }
 
 

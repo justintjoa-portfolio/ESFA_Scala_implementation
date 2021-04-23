@@ -2,56 +2,37 @@ package Circuit.Components.Primitive.ESFMachine
 
 import Circuit.Components.Primitive.CircuitComponent.CircuitComponent
 
-class ESFMachine(private var esfMachineArray: Array[CircuitComponent]) {
+class ESFMachine() {
 
-  var _mappings:Map[Int, Int] = Map() //maps array identifier to its current handle
 
-  val highestHandle:Int = 100
 
-  var lowestHandle: Int = 0
-
-  def updateExistentArray(input: Option[Int], code: Int, index: Int, value: Int): Unit = {
-    ESFMachineModule().updateExistentArray(input, () => {
-      esfMachineArray(lowestHandle).allocate(code, index, value)
-      lowestHandle+=1
-    })()
-  }
-
-  def update(ifInMap:Boolean, identifier:Int, index:Int, value:Int): Unit = {
-    ESFMachineModule().update(
-      ifInMap,
-      () => {
-        esfMachineArray(lowestHandle).allocate(lowestHandle, index, value);
-        _mappings + (identifier, lowestHandle)
-        lowestHandle+=1
-      },
-      () => updateExistentArray(lookUp(identifier, index), identifier, index, value)
-    )()
+  private var esfMachineState = {
+      var esfArray = Array[CircuitComponent](100)
+      for (x <- 0 to 99) {
+        esfArray(x) = new CircuitComponent(x)
+      }
+     ESFMachineState(
+       esfArray,
+       0,
+       0
+     )
 
   }
 
-  def encode(identifier: Option[Int]): (Option[Int], Int) = {
-    //Stub!
-    //given an array identifier, get its handle,
-    //then using the handle get its current code and rank (number of updates to empty array)
-    if (identifier isEmpty)
-      return (Some(0), 0)
-    else
-      return (Some(1), 1) //fix this to actually give the correct code
+
+  def expose(): ESFMachineState = {
+    return esfMachineState
   }
 
-  def sweep(): Unit = {
+
+  def update(index:Int, value:Int): Option[String] = {
 
   }
 
-  def update(identifier:Int, index:Int, value:Int): Unit = {
-
-
+  def delete(identifier:Int): Option[String] = {
+    return true;
   }
 
-  def lookUp(identifier: Int, index:Int): Option[Int] = {
-    return None
-  }
 
 
 

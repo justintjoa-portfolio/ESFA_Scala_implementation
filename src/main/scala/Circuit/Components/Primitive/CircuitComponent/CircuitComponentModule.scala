@@ -1,61 +1,95 @@
 package Circuit.Components.Primitive.CircuitComponent
 
+import Circuit.Components.Primitive.CircuitComponent.State.CircuitComponentState
 import Circuit.Components.Primitive.MemoryCell.MemoryCell
 
 case class CircuitComponentModule() {
 
-  def checkEligibility(index: Int, code:Int, memoryCell:MemoryCell, action: () => Unit, markUntrue: () => Unit): () => Unit = {
-    if ((index == memoryCell.index) &&
-      (code >= memoryCell.low) &&
-      (code <= memoryCell.high)) {
-      action
-    }
-    return  markUntrue
-  }
-
-  def compareRanks(mark:Boolean, rank1:Int, rank2:Int, outReference1:Int, outReference2:Int ): (Int, Int) = {
-    if (mark) {
-      if (rank2 > rank1) {
-        return (rank2, outReference2)
-      }
-      else {
-        return (rank1, outReference1)
-      }
-    }
-    return (rank1, outReference1)
-  }
-
-  def deleteCell(code: Int, memoryCell: MemoryCell, actionRemove: () => Unit, actionUnassociate: () => Unit): () => Unit = {
-    if ((memoryCell.low <= code) && (code <= memoryCell.high)) {
-      if ((memoryCell.low == code) && (code == memoryCell.high)) {
-        return actionRemove
-      }
-      else {
-        return actionUnassociate
-      }
+  def checkEligibility(state:CircuitComponentState, index: Int, code:Int): CircuitComponentState = {
+    if ((index == state.memoryCell.index) &&
+      (code >= state.memoryCell.low) &&
+      (code <= state.memoryCell.high)) {
+      state.memoryCell.mark = true
     }
     else {
-      () => Unit
+      state.memoryCell.mark = false
+    }
+    return state
+  }
+
+
+  def availableHandle(state:CircuitComponentState): Option[Int] = {
+    if (! state.memoryCell.eltDef && ! state.memoryCell.arrDef || ! state.memoryCell.zombie) {
+      return Some(state.memoryCell.array_handle)
+    }
+    else {
+      return None
     }
   }
 
-  def getCode(memoryCell:MemoryCell, handle:Int): Option[(Int, Int)] = {
-    if (memoryCell.arrDef && (memoryCell.array_handle == handle)) {
-      return Some(memoryCell.array_code, memoryCell.rank)
+
+  def compareRanks(state:CircuitComponentState, reference:Int, competingRank: Int, competingReference:Int): CircuitComponentState = {
+    if (state.memoryCell.mark && (competingRank > state.memoryCell.rank)) {
+      return CircuitComponentState(
+        state.memoryCell,
+        state.inputPort,
+        state.inputReference,
+        competingRank,
+        competingReference
+      )
+    }
+      else {
+        return CircuitComponentState(
+          state.memoryCell,
+          state.inputPort,
+          state.inputReference,
+          state.memoryCell.rank,
+          reference
+        )
+      }
+
+  }
+
+
+  def deleteCell(state:CircuitComponentState, code: Int): CircuitComponentState = {
+    if ((state.memoryCell.low <= code) && (code <= state.memoryCell.high)) {
+      if ((state.memoryCell.low == code) && (code == state.memoryCell.high)) {
+        state.memoryCell.arrDef = false
+        state.memoryCell.eltDef = false
+      }
+      else {
+        state.memoryCell.arrDef = false
+      }
+    }
+    return state
+  }
+
+
+
+  def allocate(state:CircuitComponentState, code:Int, index:Int, value:Int): CircuitComponentState = {
+    if (! state.memoryCell.arrDef) {
+      state.memoryCell.arrDef = true;
+      state.memoryCell.eltDef = true;
+      state.memoryCell.array_code = code;
+      state.memoryCell.low = code;
+      state.memoryCell.high = code;
+      state.memoryCell.index = index;
+      state.memoryCell.value = value;;
+    }
+    return state
+
+  }
+
+
+  def getCode(state:CircuitComponentState, handle:Int): Option[(Int, Int)] = {
+    if (state.memoryCell.arrDef && (state.memoryCell.array_handle == handle)) {
+      return Some(state.memoryCell.array_code, state.memoryCell.rank)
     }
     return None;
   }
 
 
-  def allocate(arrDef:Boolean, addArray: () => Unit): () => Unit = {
-    if (arrDef) {
-      return () => print("Array already exists here.");
-    }
-    else {
-      return addArray
-    }
 
-  }
 
 
 
