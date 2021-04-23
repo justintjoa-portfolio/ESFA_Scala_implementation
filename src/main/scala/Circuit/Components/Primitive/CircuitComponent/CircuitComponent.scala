@@ -3,7 +3,16 @@ package Circuit.Components.Primitive.CircuitComponent
 import Circuit.Components.Primitive.CircuitComponent.State.CircuitComponentState
 import Circuit.Components.Primitive.MemoryCell.MemoryCell
 
-class CircuitComponent(private var state: CircuitComponentState, reference:Int)  {
+class CircuitComponent(private val reference:Int)  {
+
+  private var state: CircuitComponentState = CircuitComponentState(
+    MemoryCell(reference),
+  0,
+  0,
+  0,
+  0
+  )
+
 
   val module = CircuitComponentModule()
 
@@ -28,9 +37,6 @@ class CircuitComponent(private var state: CircuitComponentState, reference:Int) 
   }
 
 
-  def initCell(identifier: Int): Unit = {
-
-  }
 
   def allocate(code:Int, index:Int, value:Int): Unit = {
     state = module.allocate(state, code, index, value)

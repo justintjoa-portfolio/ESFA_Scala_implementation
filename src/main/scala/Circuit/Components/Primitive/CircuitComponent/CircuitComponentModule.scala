@@ -65,9 +65,6 @@ case class CircuitComponentModule() {
   }
 
 
-  def initCell(identifier: Int): Unit = {
-
-  }
 
   def allocate(state:CircuitComponentState, code:Int, index:Int, value:Int): CircuitComponentState = {
     if (! state.memoryCell.arrDef) {
