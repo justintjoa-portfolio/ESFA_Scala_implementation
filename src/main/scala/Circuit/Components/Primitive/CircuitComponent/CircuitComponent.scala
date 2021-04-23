@@ -43,5 +43,9 @@ class CircuitComponent(private val reference:Int)  {
 
   }
 
+  def includeHandleInSet(codeOfPreviousArray:Int): Unit = {
+    state = module.includeHandleInSet(state, codeOfPreviousArray)
+  }
+
 
 }

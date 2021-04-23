@@ -4,7 +4,7 @@ import Circuit.Components.Primitive.CircuitComponent.CircuitComponent
 
 class ESFMachine() {
 
-
+  val maxHandle = 99
 
   private var esfMachineState = {
       var esfArray = Array[CircuitComponent](100)
@@ -13,7 +13,6 @@ class ESFMachine() {
       }
      ESFMachineState(
        esfArray,
-       0,
        0
      )
 

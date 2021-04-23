@@ -88,6 +88,13 @@ case class CircuitComponentModule() {
     return None;
   }
 
+  def includeHandleInSet(state:CircuitComponentState, codeOfPreviousArray:Int): CircuitComponentState = {
+    if (state.memoryCell.low <= codeOfPreviousArray && codeOfPreviousArray <= state.memoryCell.high) {
+      state.memoryCell.high += 1
+    }
+    return state
+  }
+
 
 
 
