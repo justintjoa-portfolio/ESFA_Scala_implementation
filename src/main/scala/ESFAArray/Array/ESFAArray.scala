@@ -1,29 +1,21 @@
-package ESFAArray
-import MemoryCell.MemoryCell
+package ESFAArray.Array
+import State.ESFAArrayState
+
 
 //let's assume array only carries ints for now
 case class ESFAArray() {
-  val maxHandle = 99
 
-  var availableHandle = 0
-
-  private var memoryCellStack = {
-    var memoryCellStack: Array[MemoryCell] = Array[MemoryCell]()
-    for (x <- 0 to 99) {
-      memoryCellStack :+ (new MemoryCell(x))
-    }
-    memoryCellStack
-  }
+  private var state = ESFAArrayState()
 
   def encode(handle: Int): Option[Int] = {
-    val targetCell = memoryCellStack(handle)
+    val targetCell = state.memoryCellStack(handle)
     if (targetCell.state.arrDef) {
       return Some(targetCell.state.array_code)
     }
     return None
   }
 
-  def update(index: Int, value: Int): Option[String] = {
+  def update(array_handle: Int, index: Int, value: Int): Option[String] = {
 
   }
 

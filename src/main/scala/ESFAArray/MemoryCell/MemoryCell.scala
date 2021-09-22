@@ -3,6 +3,9 @@ package ESFAArray.MemoryCell
 import ESFAArray.MemoryCell.Op.MemoryCellOp
 import ESFAArray.MemoryCell.State.MemoryCellState
 
+import scala.Option.option2Iterable
+import scala.collection.IterableOnce.iterableOnceExtensionMethods
+
 class MemoryCell(handle: Int) {
   var state: MemoryCellState = MemoryCellState(
     arrDef = false,
@@ -20,12 +23,10 @@ class MemoryCell(handle: Int) {
     mark = false
   )
 
-  def isEmpty(): Boolean = {
-    return MemoryCellOp().isEmpty(state)
-  }
-
-  def allocate(index: Int, value: Int): Boolean = {
-
+  def allocate(index: Int, value: Int, prev_array_code: Option[Int]): Boolean = {
+    val (did_allocate, new_state) = MemoryCellOp().allocate(state, index, value, prev_array_code)
+    state = new_state
+    return did_allocate
   }
 }
 
