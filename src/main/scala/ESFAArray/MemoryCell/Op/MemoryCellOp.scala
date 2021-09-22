@@ -24,12 +24,17 @@ case class MemoryCellOp() {
       )
       state.arrDef = true
       state.eltDef = true
+      state.congrue_exempt = true
       code = Some(state.array_code)
     }
     return (code, state)
   }
 
   def congrue(state: MemoryCellState, code_of_new_entry: Int): MemoryCellState = {
+    if (state.congrue_exempt) {
+      state.congrue_exempt = false;
+      return state;
+    }
     if (state.arrDef) {
       if (state.array_code >= code_of_new_entry) {
         state.array_code += 1

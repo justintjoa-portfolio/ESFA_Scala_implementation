@@ -15,26 +15,39 @@ case class ESFAArrayOp {
     return None
   }
 
-  def update(state: ESFAArrayState, handle: Int, index: Int, value: Int): (ESFAArrayState, Option[String]) = {
+  def update(state: ESFAArrayState, handle: Int, index: Int, value: Int): Option[ESFAArrayState] = {
     @tailrec
-    def findNextAvailableCell(state: ESFAArrayState, target_handle: Int, code: Option[Int], index: Int, value: Int): Option[Int] = {
-      if (state.memoryCellStack(target_handle).allocate(index, value, code)) {
-        return true;
+    def findNextAvailableCell(target_handle: Int, code: Option[Int], index: Int, value: Int): Option[Int] = {
+      if (target_handle > maxHandle) {
+        return None
+      }
+      var new_code = state.memoryCellStack(target_handle).allocate(index, value, code)
+      if (new_code.isDefined) {
+        return new_code;
       }
       else {
         var new_target_handle = target_handle + 1
-        return findNextAvailableCell(state, new_target_handle, code, index, value)
+        return findNextAvailableCell(new_target_handle, code, index, value)
       }
     }
 
-
     val oldArrayCode = encode(state, handle)
-    if (findNextAvailableCell(state, 0, oldArrayCode, index, value)) {
-
+    val new_code = findNextAvailableCell(0, oldArrayCode, index, value)
+    var result: Option[ESFAArrayState] = new_code.map {
+      case new_confirmed_code: Int => {
+        state.memoryCellStack.mapInPlace(
+          (memoryCell) => {
+            memoryCell.congrue(new_confirmed_code)
+            memoryCell
+          }
+        )
+        state
+      }
+      case _ => {
+        None
+      }
     }
-    else {
-      return (state, Some("Error!"))
-    }
+    return  result
   }
 
   def lookUp(index: Int): Option[Int] = {
