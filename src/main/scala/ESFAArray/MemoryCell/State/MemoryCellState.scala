@@ -13,4 +13,5 @@ case class MemoryCellState(
                             var notify_flag: Boolean,
                             var zombie: Boolean,
                             var select: Boolean,
-                            var mark: Boolean)
+                            var mark: Boolean,
+                            var congrue_exempt: Boolean)
