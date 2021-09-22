@@ -17,7 +17,7 @@ case class ESFAArrayOp {
 
   def update(state: ESFAArrayState, handle: Int, index: Int, value: Int): (ESFAArrayState, Option[String]) = {
     @tailrec
-    def findNextAvailableCell(state: ESFAArrayState, target_handle: Int, code: Option[Int], index: Int, value: Int): Boolean = {
+    def findNextAvailableCell(state: ESFAArrayState, target_handle: Int, code: Option[Int], index: Int, value: Int): Option[Int] = {
       if (state.memoryCellStack(target_handle).allocate(index, value, code)) {
         return true;
       }
@@ -28,10 +28,13 @@ case class ESFAArrayOp {
     }
 
 
-    encode(state, handle).map(
-      (oldArrayCode) =>
+    val oldArrayCode = encode(state, handle)
+    if (findNextAvailableCell(state, 0, oldArrayCode, index, value)) {
 
-    )
+    }
+    else {
+      return (state, Some("Error!"))
+    }
   }
 
   def lookUp(index: Int): Option[Int] = {

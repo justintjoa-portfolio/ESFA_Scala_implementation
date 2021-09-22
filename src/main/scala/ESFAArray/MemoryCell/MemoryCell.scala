@@ -23,10 +23,10 @@ class MemoryCell(handle: Int) {
     mark = false
   )
 
-  def allocate(index: Int, value: Int, prev_array_code: Option[Int]): Boolean = {
-    val (did_allocate, new_state) = MemoryCellOp().allocate(state, index, value, prev_array_code)
+  def allocate(index: Int, value: Int, prev_array_code: Option[Int]): Option[Int] = {
+    val (new_code, new_state) = MemoryCellOp().allocate(state, index, value, prev_array_code)
     state = new_state
-    return did_allocate
+    return new_code
   }
 }
 

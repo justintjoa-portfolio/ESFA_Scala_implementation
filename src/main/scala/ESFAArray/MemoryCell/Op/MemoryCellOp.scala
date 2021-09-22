@@ -10,8 +10,8 @@ case class MemoryCellOp() {
     return false;
   }
 
-  def allocate(state: MemoryCellState, index: Int, value: Int, prev_array_code: Option[Int]): (Boolean, MemoryCellState) = {
-    var changed = false
+  def allocate(state: MemoryCellState, index: Int, value: Int, prev_array_code: Option[Int]): (Option[Int], MemoryCellState) = {
+    var code: Option[Int] = None
     if (isEmpty(state)) {
       state.index = index
       state.value = value
@@ -24,9 +24,9 @@ case class MemoryCellOp() {
       )
       state.arrDef = true
       state.eltDef = true
-      changed = true
+      code = Some(state.array_code)
     }
-    return (changed, state)
+    return (code, state)
   }
 
   def congrue(state: MemoryCellState, code_of_new_entry: Int): MemoryCellState = {
