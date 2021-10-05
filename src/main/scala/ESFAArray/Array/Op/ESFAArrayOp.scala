@@ -15,7 +15,7 @@ case class ESFAArrayOp {
     return None
   }
 
-  def update(state: ESFAArrayState, handle: Int, index: Int, value: Int): ESFAArrayState = {
+  def update(state: ESFAArrayState, handle: Int, index: Int, value: Int): (Boolean, ESFAArrayState) = {
     @tailrec
     def findNextAvailableCell(target_handle: Int, code: Option[Int], index: Int, value: Int): Option[Int] = {
       if (! code.isDefined) {
@@ -45,9 +45,9 @@ case class ESFAArrayOp {
             memoryCell
           }
         )
-        state
+        (true, state)
       }
-      case None => state
+      case None => (false, state)
     }
   }
 
