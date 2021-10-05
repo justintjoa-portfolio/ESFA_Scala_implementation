@@ -16,10 +16,10 @@ case class MemoryCellOp() {
       state.index = index
       state.value = value
       prev_array_code.foreach(
-        (code) => {
-          state.array_code = code + 1
-          state.low = code + 1
-          state.high = code + 1
+        (prev_code) => {
+          state.array_code = prev_code + 1
+          state.low = prev_code + 1
+          state.high = prev_code + 1
         }
       )
       state.arrDef = true
