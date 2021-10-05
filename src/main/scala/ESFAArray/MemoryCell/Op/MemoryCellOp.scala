@@ -71,4 +71,8 @@ case class MemoryCellOp() {
     }
     return state
   }
+
+  def congrueDown(state: MemoryCellState, code_of_deleted_entry: Int): MemoryCellState = {
+
+  }
 }
