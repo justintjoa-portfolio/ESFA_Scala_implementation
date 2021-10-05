@@ -15,9 +15,12 @@ case class ESFAArrayOp {
     return None
   }
 
-  def update(state: ESFAArrayState, handle: Int, index: Int, value: Int): Option[ESFAArrayState] = {
+  def update(state: ESFAArrayState, handle: Int, index: Int, value: Int): ESFAArrayState = {
     @tailrec
     def findNextAvailableCell(target_handle: Int, code: Option[Int], index: Int, value: Int): Option[Int] = {
+      if (! code.isDefined) {
+        return None
+      }
       if (target_handle > maxHandle) {
         return None
       }
@@ -33,8 +36,8 @@ case class ESFAArrayOp {
 
     val oldArrayCode = encode(state, handle)
     val new_code = findNextAvailableCell(0, oldArrayCode, index, value)
-    var result: Option[ESFAArrayState] = new_code.map {
-      case new_confirmed_code: Int => {
+    new_code match {
+      case Some(new_confirmed_code) => {
         state.memoryCellStack.mapInPlace(
           (memoryCell) => {
             memoryCell.congrue(new_confirmed_code)
@@ -43,11 +46,8 @@ case class ESFAArrayOp {
         )
         state
       }
-      case _ => {
-        None
-      }
+      case None => state
     }
-    return  result
   }
 
   def lookUp(index: Int): Option[Int] = {
