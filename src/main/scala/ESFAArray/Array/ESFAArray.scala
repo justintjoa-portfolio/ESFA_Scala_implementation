@@ -1,22 +1,16 @@
 package ESFAArray.Array
 import State.ESFAArrayState
-
+import Op.ESFAArrayOp
 
 //let's assume array only carries ints for now
 case class ESFAArray() {
 
   private var state = ESFAArrayState()
 
-  def encode(handle: Int): Option[Int] = {
-    val targetCell = state.memoryCellStack(handle)
-    if (targetCell.state.arrDef) {
-      return Some(targetCell.state.array_code)
-    }
-    return None
-  }
-
-  def update(array_handle: Int, index: Int, value: Int): Option[String] = {
-
+  def update(array_handle: Int, index: Int, value: Int): Boolean = {
+    val (didUpdate, newstate) = ESFAArrayOp().update(state, array_handle, index, value)
+    state = newstate
+    return didUpdate
   }
 
   def lookUp(index: Int): Option[Int] = {

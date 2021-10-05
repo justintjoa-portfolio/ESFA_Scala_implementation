@@ -15,7 +15,7 @@ case class ESFAArrayOp {
     return None
   }
 
-  def update(state: ESFAArrayState, handle: Int, index: Int, value: Int): ESFAArrayState = {
+  def update(state: ESFAArrayState, handle: Int, index: Int, value: Int): (Boolean, ESFAArrayState) = {
     @tailrec
     def findNextAvailableCell(target_handle: Int, code: Option[Int], index: Int, value: Int): Option[Int] = {
       if (! code.isDefined) {
@@ -38,15 +38,16 @@ case class ESFAArrayOp {
     val new_code = findNextAvailableCell(0, oldArrayCode, index, value)
     new_code match {
       case Some(new_confirmed_code) => {
+        // "Congruing" in all other cells is performed by tmap in actual implementation
         state.memoryCellStack.mapInPlace(
           (memoryCell) => {
             memoryCell.congrue(new_confirmed_code)
             memoryCell
           }
         )
-        state
+        (true, state)
       }
-      case None => state
+      case None => (false, state)
     }
   }
 

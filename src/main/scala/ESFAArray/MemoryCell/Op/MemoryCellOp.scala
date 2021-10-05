@@ -42,10 +42,10 @@ case class MemoryCellOp() {
     }
     if (state.eltDef) {
       // explained in section 6.4.1
-      if (code_of_new_entry < state.low) {
+      if (state.low >= code_of_new_entry) {
         state.low += 1
       }
-      if (code_of_new_entry <= state.high) {
+      if (state.high >= code_of_new_entry) {
         state.high += 1
       }
     }
