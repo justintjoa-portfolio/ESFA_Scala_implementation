@@ -7,20 +7,22 @@ import scala.math.Ordered.orderingToOrdered
 case class ESFAArrayOp {
   val maxHandle = 99
 
-  def encode(state: ESFAArrayState, handle : Int): Option[Int] = {
-    val targetCell = state.memoryCellStack(handle)
-    if (targetCell.state.arrDef) {
-      return Some(targetCell.state.array_code)
-    }
-    return None
-  }
-
-  def update(state: ESFAArrayState, handle: Int, index: Int, value: Int): (Boolean, ESFAArrayState) = {
-    @tailrec
-    def findNextAvailableCell(target_handle: Int, code: Option[Int], index: Int, value: Int): Option[Int] = {
-      if (! code.isDefined) {
+  def encode(state: ESFAArrayState, handle : Option[Int]): Option[Int] = {
+    handle match {
+      case Some(requested_handle) => {
+        val targetCell = state.memoryCellStack(requested_handle)
+        if (targetCell.state.arrDef) {
+          return Some(targetCell.state.array_code)
+        }
         return None
       }
+      case None => return None
+    }
+  }
+
+  def update(state: ESFAArrayState, handle: Option[Int], index: Int, value: Int): (Boolean, ESFAArrayState) = {
+    @tailrec
+    def findNextAvailableCell(target_handle: Int, code: Int, index: Int, value: Int): Option[Int] = {
       if (target_handle > maxHandle) {
         return None
       }
@@ -35,7 +37,14 @@ case class ESFAArrayOp {
     }
 
     val oldArrayCode = encode(state, handle)
-    val new_code = findNextAvailableCell(0, oldArrayCode, index, value)
+    var new_code: Option[Int] = None
+    oldArrayCode match {
+      case Some(old_code) => {
+        new_code = findNextAvailableCell(0, old_code, index, value)
+      }
+      case None => return (false, state)
+    }
+
     new_code match {
       case Some(new_confirmed_code) => {
         // "Congruing" in all other cells is performed by tmap in actual implementation

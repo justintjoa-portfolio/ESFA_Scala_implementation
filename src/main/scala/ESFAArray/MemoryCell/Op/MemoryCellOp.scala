@@ -10,18 +10,15 @@ case class MemoryCellOp() {
     return false;
   }
 
-  def allocate(state: MemoryCellState, index: Int, value: Int, prev_array_code: Option[Int]): (Option[Int], MemoryCellState) = {
+  def allocate(state: MemoryCellState, index: Int, value: Int, prev_array_code: Int): (Option[Int], MemoryCellState) = {
     var code: Option[Int] = None
     if (isEmpty(state)) {
       state.index = index
       state.value = value
-      prev_array_code.foreach(
-        (prev_code) => {
-          state.array_code = prev_code + 1
-          state.low = prev_code + 1
-          state.high = prev_code + 1
-        }
-      )
+      state.array_code = prev_array_code + 1
+      state.low = prev_array_code + 1
+      state.high = prev_array_code + 1
+
       state.arrDef = true
       state.eltDef = true
       state.congrue_exempt = true

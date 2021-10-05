@@ -24,7 +24,7 @@ class MemoryCell(handle: Int) {
     congrue_exempt = false
   )
 
-  def allocate(index: Int, value: Int, prev_array_code: Option[Int]): Option[Int] = {
+  def allocate(index: Int, value: Int, prev_array_code: Int): Option[Int] = {
     val (new_code, new_state) = MemoryCellOp().allocate(state, index, value, prev_array_code)
     state = new_state
     return new_code
