@@ -109,6 +109,9 @@ case class ESFAArrayOp {
   }
 
   def delete(state: ESFAArrayState, array_handle: Int): (Boolean, ESFAArrayState) = {
+    if (array_handle > maxHandle) {
+      return (false, state)
+    }
     val deleted_array_code = state.memoryCellStack(array_handle).deAllocate(array_handle)
     deleted_array_code match {
       case Some(deleted_array) => {
@@ -127,7 +130,7 @@ case class ESFAArrayOp {
   }
 
 
-  def nextDef(state: ESFAArrayState, code_of_interest: Int, prev_rank: Int): Option[Int] = {
+  def nextDef(state: ESFAArrayState, code_of_interest: Int, prev_rank: Int): Option[(Int, Int)] = {
 
   }
 }
