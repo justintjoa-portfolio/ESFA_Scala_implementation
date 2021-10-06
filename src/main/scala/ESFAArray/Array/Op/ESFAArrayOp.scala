@@ -130,7 +130,23 @@ case class ESFAArrayOp {
   }
 
 
-  def nextDef(state: ESFAArrayState, code_of_interest: Int, prev_rank: Int): Option[(Int, Int)] = {
-
+  def nextDef(state: ESFAArrayState, array_handle: Int, prev_rank: Int) : Option[(Int, Int)] = {
+    // on this
+    encode(state, array_handle) match {
+      case Some(code) => {
+        state.memoryCellStack.mapInPlace(
+          (memoryCell) => {
+            if ((code >= memoryCell.state.low) && (code <= memoryCell.state.high)) {
+              memoryCell.state.mark = true;
+            }
+            memoryCell
+          }
+        )
+      }
+      case None => {
+        return None
+      }
+    }
+  }
   }
 }
