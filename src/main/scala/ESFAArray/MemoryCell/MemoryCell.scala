@@ -20,8 +20,7 @@ class MemoryCell(handle: Int) {
     notify_flag = false,
     zombie = false,
     select = false,
-    mark = false,
-    congrue_exempt = false
+    mark = false
   )
 
   def allocate(index: Int, value: Int, prev_array_code: Option[Int], prev_array_rank: Option[Int]): Option[Int] = {
@@ -30,7 +29,7 @@ class MemoryCell(handle: Int) {
     return new_code
   }
 
-  def deAllocate(handle: Int): Int = {
+  def deAllocate(handle: Int): Option[Int] = {
     val (code, new_state) = MemoryCellOp().deAllocate(state)
     state = new_state
     return code
@@ -38,6 +37,10 @@ class MemoryCell(handle: Int) {
 
   def congrueUp(code_of_new_entry: Int): Unit = {
     state = MemoryCellOp().congrueUp(state, code_of_new_entry)
+  }
+
+  def congrueDown(code_of_deleted_entry: Int): Unit = {
+    state = MemoryCellOp().congrueDown(state, code_of_deleted_entry)
   }
 }
 

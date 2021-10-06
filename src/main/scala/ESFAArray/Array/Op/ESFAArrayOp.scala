@@ -93,7 +93,7 @@ case class ESFAArrayOp {
     }
     var result: Option[Int] = None
     var highest_rank = 0
-    state.memoryCellStack.foreach(
+    state.memoryCellStack.mapInPlace(
       (memoryCell) => {
         if (memoryCell.state.mark) {
           if (memoryCell.state.rank > highest_rank) {
@@ -102,22 +102,30 @@ case class ESFAArrayOp {
           }
           memoryCell.state.mark = false;
         }
+        memoryCell
       }
     )
     return result
   }
 
-  }
-
-  def delete(state: ESFAArrayState, array_handle: Int): Boolean = {
-    state.memoryCellStack(array_handle).deAllocate(array_handle)
-    state.memoryCellStack.foreach(
-      (memoryCell) => {
-
+  def delete(state: ESFAArrayState, array_handle: Int): (Boolean, ESFAArrayState) = {
+    val deleted_array_code = state.memoryCellStack(array_handle).deAllocate(array_handle)
+    deleted_array_code match {
+      case Some(deleted_array) => {
+        state.memoryCellStack.mapInPlace(
+          (memoryCell) => {
+            memoryCell.congrueDown(deleted_array)
+            memoryCell
+          }
+        )
+        return (true, state)
       }
-
-    )
+      case None => {
+        return (false, state)
+      }
+    }
   }
+
 
   def nextDef(state: ESFAArrayState, code_of_interest: Int, prev_rank: Int): Option[Int] = {
 
