@@ -21,13 +21,19 @@ case class MemoryCellOp() {
           state.low = prev_code + 1
           state.high = prev_code + 1
         }
-        case None => {}
+        case None => {
+          state.array_code = state.handle
+          state.low = state.handle
+          state.high = state.handle
+        }
       }
       prev_array_rank match {
         case Some(prev_rank) => {
           state.rank = prev_rank + 1
         }
-        case None => {}
+        case None => {
+          state.rank += 1
+        }
       }
       state.arrDef = true
       state.eltDef = true
