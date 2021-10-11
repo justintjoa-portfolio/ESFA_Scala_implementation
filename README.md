@@ -1,6 +1,4 @@
-High-level API complete. Contains definitions for updateS, deleteS, lookupS, maxDef, minDef, nextDef, prevDef. 
-
-updateS, deleteS, and lookupS were tested. maxDef, minDef, nextDef, and prevDef will likely be tested in another phase. 
+High-level API complete. Contains definitions for updateS, deleteS, lookupS, maxDef, minDef, nextDef, prevDef.
 
 Original Paper: https://www.sciencedirect.com/science/article/pii/S0167642314005747
 

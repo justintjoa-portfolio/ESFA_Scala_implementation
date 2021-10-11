@@ -452,7 +452,6 @@ class Test extends FunSuite {
   }
 
   test("ESFATransversalTest") {
-    print("start transversal test\n")
     val emptyArrayState: ESFAArrayState = ESFAArrayState()
 
     var transversal_state = emptyArrayState
