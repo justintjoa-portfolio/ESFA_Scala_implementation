@@ -73,6 +73,7 @@ case class ESFAArrayOp {
       }
       case None => return (false, state, None)
     }
+  }
 
     def lookUp(state: ESFAArrayState, array_handle: Int, index: Int): Option[Int] = {
       val code = encode(state, array_handle)
@@ -130,28 +131,27 @@ case class ESFAArrayOp {
     }
 
 
-    def nextDef(state: ESFAArrayState, array_handle: Int, prev_index: Int): Option[(Int, Int)] = {
-      // on this
+    def nextDef(state: ESFAArrayState, array_handle: Int, prev_index: Int): Option[(Int, Int, Int)] = {
       var lowest_next_index: Option[Int] = None
-      var next_subarray: Option[(Int, Int)] = None // contains subarray's corresponding handle and code
+      var next_subarray: Option[(Int, Int, Int)] = None // contains subarray's corresponding handle, index, and value
 
       encode(state, array_handle) match {
         case Some(code) => {
           state.memoryCellStack.foreach(
             (memoryCell) => {
-              if ((code >= memoryCell.state.low) && (code <= memoryCell.state.high)) {
+              if ((code >= memoryCell.state.low) && (code <= memoryCell.state.high) && (memoryCell.state.eltDef)) {
                 if (memoryCell.state.index > prev_index) {
                   val potential_index = memoryCell.state.index
                   lowest_next_index match {
                     case Some(lowest_index) => {
                       if (lowest_index > potential_index) {
                         lowest_next_index = Some(potential_index)
-                        next_subarray = Some(memoryCell.state.handle, memoryCell.state.array_code)
+                        next_subarray = Some(memoryCell.state.handle, memoryCell.state.index, memoryCell.state.value)
                       }
                     }
                     case None => {
                       lowest_next_index = Some(potential_index)
-                      next_subarray = Some(memoryCell.state.handle, memoryCell.state.array_code)
+                      next_subarray = Some(memoryCell.state.handle, memoryCell.state.index, memoryCell.state.value)
                     }
                   }
                 }
@@ -166,28 +166,27 @@ case class ESFAArrayOp {
       }
     }
 
-    def prevDef(state: ESFAArrayState, array_handle: Int, anterior_index: Int): Option[(Int, Int)] = {
-      // on this
+    def prevDef(state: ESFAArrayState, array_handle: Int, anterior_index: Int): Option[(Int, Int, Int)] = {
       var lowest_prev_index: Option[Int] = None
-      var prev_subarray: Option[(Int, Int)] = None // contains subarray's corresponding handle and code
+      var prev_subarray: Option[(Int, Int, Int)] = None // contains subarray's corresponding handle, index, and value
 
       encode(state, array_handle) match {
         case Some(code) => {
           state.memoryCellStack.foreach(
             (memoryCell) => {
-              if ((code >= memoryCell.state.low) && (code <= memoryCell.state.high)) {
+              if ((code >= memoryCell.state.low) && (code <= memoryCell.state.high) && (memoryCell.state.eltDef)) {
                 if (memoryCell.state.index < anterior_index) {
                   val potential_index = memoryCell.state.index
                   lowest_prev_index match {
                     case Some(lowest_index) => {
                       if (lowest_index > potential_index) {
                         lowest_prev_index = Some(potential_index)
-                        prev_subarray = Some(memoryCell.state.handle, memoryCell.state.array_code)
+                        prev_subarray = Some(memoryCell.state.handle, memoryCell.state.index, memoryCell.state.value)
                       }
                     }
                     case None => {
                       lowest_prev_index = Some(potential_index)
-                      prev_subarray = Some(memoryCell.state.handle, memoryCell.state.array_code)
+                      prev_subarray = Some(memoryCell.state.handle, memoryCell.state.index, memoryCell.state.value)
                     }
                   }
                 }
@@ -201,6 +200,73 @@ case class ESFAArrayOp {
         }
       }
     }
+
+    def minDef(state: ESFAArrayState, array_handle: Int): Option[(Int, Int, Int)] = {
+      var lowest_defined_index: Option[Int] = None
+      var min_defined_subarray: Option[(Int, Int, Int)] = None // contains subarray's corresponding handle and code
+
+      encode(state, array_handle) match {
+        case Some(code) => {
+          state.memoryCellStack.foreach(
+            (memoryCell) => {
+              if ((code >= memoryCell.state.low) && (code <= memoryCell.state.high) && (memoryCell.state.eltDef)) {
+                val potential_lowest_index = memoryCell.state.index
+                lowest_defined_index match {
+                  case Some(lowest_index) => {
+                    if (lowest_index > potential_lowest_index) {
+                      lowest_defined_index = Some(potential_lowest_index)
+                      min_defined_subarray = Some(memoryCell.state.handle, memoryCell.state.index, memoryCell.state.value)
+                    }
+                  }
+                  case None => {
+                    lowest_defined_index = Some(potential_lowest_index)
+                    min_defined_subarray = Some(memoryCell.state.handle, memoryCell.state.index, memoryCell.state.value)
+                  }
+                }
+              }
+            }
+          )
+          min_defined_subarray
+        }
+        case None => {
+          return None
+        }
+      }
+    }
+
+  def maxDef(state: ESFAArrayState, array_handle: Int): Option[(Int, Int, Int)] = {
+    var highest_defined_index: Option[Int] = None
+    var highest_defined_subarray: Option[(Int, Int, Int)] = None // contains subarray's corresponding handle and code
+
+    encode(state, array_handle) match {
+      case Some(code) => {
+        state.memoryCellStack.foreach(
+          (memoryCell) => {
+            if ((code >= memoryCell.state.low) && (code <= memoryCell.state.high) && (memoryCell.state.eltDef)) {
+              val potential_highest_index = memoryCell.state.index
+              highest_defined_index match {
+                case Some(lowest_index) => {
+                  if (lowest_index < potential_highest_index) {
+                    highest_defined_index = Some(potential_highest_index)
+                    highest_defined_subarray = Some(memoryCell.state.handle, memoryCell.state.index, memoryCell.state.value)
+                  }
+                }
+                case None => {
+                  highest_defined_index = Some(potential_highest_index)
+                  highest_defined_subarray = Some(memoryCell.state.handle, memoryCell.state.index, memoryCell.state.value)
+                }
+              }
+            }
+          }
+        )
+        highest_defined_subarray
+      }
+      case None => {
+        return None
+      }
+    }
+  }
+
   }
 
 
