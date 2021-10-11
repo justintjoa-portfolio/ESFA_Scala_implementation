@@ -327,7 +327,7 @@ case class ESFAArrayOp() {
         val (code, rank) = code_rank
         state.memoryCellStack.mapInPlace(
           (memoryCell) => {
-            if (memoryCell.state.low <= code && memoryCell.state.high >= code) {
+            if (memoryCell.state.low <= code && memoryCell.state.high >= code && memoryCell.state.arrDef) {
               memoryCell.state.mark = true
             }
             memoryCell
@@ -344,11 +344,13 @@ case class ESFAArrayOp() {
                     if (highest_tracked_rank < memoryCell.state.rank) {
                       highest_prev_rank = Some(memoryCell.state.rank)
                       handle = Some(memoryCell.state.handle)
+                      print("set rank\n")
                     }
                   }
                   case None => {
                     highest_prev_rank = Some(memoryCell.state.rank)
                     handle = Some(memoryCell.state.handle)
+                    print("set rank new\n")
                   }
                 }
               }

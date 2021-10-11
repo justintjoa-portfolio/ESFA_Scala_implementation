@@ -537,4 +537,16 @@ class Test extends FunSuite {
     }
 
   }
+
+  test("Duplicate entries") {
+    val emptyArrayState: ESFAArrayState = ESFAArrayState()
+
+    var dupe_state = emptyArrayState
+    dupe_state = ESFAArrayOp().update(dupe_state, None, 0, 5)._1
+    dupe_state = ESFAArrayOp().update(dupe_state, Some(0), 0, 10)._1
+    if (! dupe_state.memoryCellStack(1).state.arrDef) {
+      fail("Should have new array here")
+    }
+
+  }
 }
