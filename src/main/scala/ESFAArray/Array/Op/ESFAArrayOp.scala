@@ -5,7 +5,7 @@ import ESFAArray.MemoryCell.MemoryCell
 import scala.annotation.tailrec
 import scala.math.Ordered.orderingToOrdered
 
-case class ESFAArrayOp {
+case class ESFAArrayOp() {
   val maxHandle = 99
 
   def encode(state: ESFAArrayState, handle: Int): Either[String, (Int, Int)] = {
