@@ -165,6 +165,42 @@ case class ESFAArrayOp {
         }
       }
     }
+
+    def prevDef(state: ESFAArrayState, array_handle: Int, anterior_index: Int): Option[(Int, Int)] = {
+      // on this
+      var lowest_prev_index: Option[Int] = None
+      var prev_subarray: Option[(Int, Int)] = None // contains subarray's corresponding handle and code
+
+      encode(state, array_handle) match {
+        case Some(code) => {
+          state.memoryCellStack.foreach(
+            (memoryCell) => {
+              if ((code >= memoryCell.state.low) && (code <= memoryCell.state.high)) {
+                if (memoryCell.state.index < anterior_index) {
+                  val potential_index = memoryCell.state.index
+                  lowest_prev_index match {
+                    case Some(lowest_index) => {
+                      if (lowest_index > potential_index) {
+                        lowest_prev_index = Some(potential_index)
+                        prev_subarray = Some(memoryCell.state.handle, memoryCell.state.array_code)
+                      }
+                    }
+                    case None => {
+                      lowest_prev_index = Some(potential_index)
+                      prev_subarray = Some(memoryCell.state.handle, memoryCell.state.array_code)
+                    }
+                  }
+                }
+              }
+            }
+          )
+          prev_subarray
+        }
+        case None => {
+          return None
+        }
+      }
+    }
   }
 
 
