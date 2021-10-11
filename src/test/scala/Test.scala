@@ -265,6 +265,66 @@ class Test extends FunSuite {
     assert(state_and_handle._1.memoryCellStack(5).state.high === 2)
     assert(state_and_handle._1.memoryCellStack(5).state.array_code === 2)
 
+    ESFAArrayOp().lookUp(state_and_handle._1, 0, 0) match {
+      case Right(value) => {
+        assert(value === 5)
+      }
+      case Left(error_message) => {
+        print(error_message)
+        fail("could not find first array")
+      }
+    }
+
+    ESFAArrayOp().lookUp(state_and_handle._1, 1, 0) match {
+      case Right(value) => {
+        assert(value === 5)
+      }
+      case Left(error_message) => {
+        print(error_message)
+        fail("could not find first array in second array")
+      }
+    }
+
+    ESFAArrayOp().lookUp(state_and_handle._1, 1, 2) match {
+      case Right(value) => {
+        assert(value === 10)
+      }
+      case Left(error_message) => {
+        print(error_message)
+        fail("could not find first array in second array")
+      }
+    }
+
+    ESFAArrayOp().lookUp(state_and_handle._1, 3, 4) match {
+      case Right(value) => {
+        assert(value === 10)
+      }
+      case Left(error_message) => {
+        print(error_message)
+        fail("could not find third array in fourth array")
+      }
+    }
+
+    ESFAArrayOp().lookUp(state_and_handle._1, 5, 2) match {
+      case Right(value) => {
+        assert(value === 10)
+      }
+      case Left(error_message) => {
+        print(error_message)
+        fail("could not find second array in fifth array")
+      }
+    }
+
+    ESFAArrayOp().lookUp(state_and_handle._1, 5, 1) match {
+      case Right(value) => {
+        fail("You shouldn't have a value with index 1 in sixth array")
+      }
+      case Left(error_message) => {
+        print(error_message)
+        print("Success - you should in fact have an error here, as there is no value with index 1 in sixth array.")
+      }
+    }
+
     val (_, new_state) = ESFAArrayOp().delete(state_and_handle._1, 1)
     assert(new_state.memoryCellStack(0).state.arrDef === true)
     assert(new_state.memoryCellStack(0).state.eltDef === true)
@@ -381,10 +441,14 @@ class Test extends FunSuite {
     assert(post_deletion_state.memoryCellStack(5).state.eltDef === false)
     assert(post_deletion_state.memoryCellStack(5).state.mark === false)
 
-
-
-
-
-
+    ESFAArrayOp().lookUp(post_deletion_state, 0, 0) match {
+      case Right(value) => {
+        assert(value === 5)
+      }
+      case Left(error_message) => {
+        print(error_message)
+        fail("could not find first array")
+      }
+    }
   }
 }
