@@ -23,31 +23,30 @@ case class ESFAArrayOp() {
   // Return the handle as we aren't doing a system tracking of legible handles
   def update(state: ESFAArrayState, handle: Option[Int], index: Int, value: Int): (ESFAArrayState, Either[String, Int]) = {
     @tailrec
-    def findNextAvailableCell(target_handle: Int, code_and_rank: Option[(Int, Int)], index: Int, value: Int): (Either[String, (Int, Int)]) = {
+    def findNextAvailableCell(target_handle: Int, code_and_rank: Option[(Int, Int)], index: Int, value: Int): (Either[String, Int]) = {
       if (target_handle > maxHandle) {
         return Left("No memory cells are free to allocate this new element")
       }
       state.memoryCellStack(target_handle).allocate(index, value, code_and_rank) match {
         case Right(new_code) =>
-          return Right(target_handle, new_code)
+          return Right(target_handle)
         case Left(_) =>
           var new_target_handle = target_handle + 1
           return findNextAvailableCell(new_target_handle, code_and_rank, index, value)
       }
     }
 
-    var new_code: Int = 0
+    var code_of_updated_entry: Option[Int] = None
     var new_handle: Int = 0
     handle match {
       case Some(target_handle) => {
-        val oldArrayCode = encode(state, target_handle)
-        oldArrayCode match {
+        val oldArrayCodeAndRank = encode(state, target_handle)
+        oldArrayCodeAndRank match {
           case Right(code_and_rank) => {
             findNextAvailableCell(0, Some(code_and_rank), index, value) match {
-              case Right(handle_and_code) => {
-                val (code, handle) = handle_and_code
-                new_code = code
+              case Right(handle) => {
                 new_handle = handle
+                code_of_updated_entry = Some(code_and_rank._1)
               }
               case Left(error_message) => {
                 return (state, Left(error_message))
@@ -61,9 +60,7 @@ case class ESFAArrayOp() {
       }
       case None => {
         findNextAvailableCell(0, None, index, value) match {
-          case Right(handle_and_code) => {
-            val (code, handle) = handle_and_code
-            new_code = code
+          case Right(handle) => {
             new_handle = handle
           }
           case Left(error_message) => {
@@ -76,7 +73,7 @@ case class ESFAArrayOp() {
     // "Congruing" in all other cells is performed by tmap in actual implementation
     state.memoryCellStack.mapInPlace(
       (memoryCell) => {
-        memoryCell.congrueUp(new_code)
+        memoryCell.congrueUp(code_of_updated_entry)
         memoryCell
       }
     )

@@ -35,7 +35,7 @@ class MemoryCell(handle: Int) {
     return code
   }
 
-  def congrueUp(code_of_new_entry: Int): Unit = {
+  def congrueUp(code_of_new_entry: Option[Int]): Unit = {
     state = MemoryCellOp().congrueUp(state, code_of_new_entry)
   }
 

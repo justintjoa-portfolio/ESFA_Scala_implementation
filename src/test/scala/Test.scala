@@ -4,9 +4,9 @@ import org.scalatest.FunSuite
 
 class Test extends FunSuite {
 
-  val emptyArrayState: ESFAArrayState = ESFAArrayState()
 
   test("UpdateBasicTest") {
+    val emptyArrayState: ESFAArrayState = ESFAArrayState()
     assert(emptyArrayState.memoryCellStack(0).state.rank === 0)
     var state_and_handle = ESFAArrayOp().update(emptyArrayState, None, 0, 5)
 
@@ -24,7 +24,7 @@ class Test extends FunSuite {
       }
       case Left(error_message) =>
         print(error_message)
-        fail("Should be updating and adding a legitimate entry with handle")
+        fail("Should be updating and adding a legitimate entry with handle\n")
     }
 
     state_and_handle = ESFAArrayOp().update(state_and_handle._1, Some(0), 2, 10)
@@ -97,7 +97,7 @@ class Test extends FunSuite {
       }
       case Left(error_message) =>
         print(error_message)
-        fail("Should be updating and adding a legitimate entry with handle")
+        fail("Should be updating and adding a legitimate entry with handle\n")
     }
 
     state_and_handle = ESFAArrayOp().update(state_and_handle._1, Some(2), 10, 21)
@@ -271,7 +271,7 @@ class Test extends FunSuite {
       }
       case Left(error_message) => {
         print(error_message)
-        fail("could not find first array")
+        fail("could not find first array\n")
       }
     }
 
@@ -281,7 +281,7 @@ class Test extends FunSuite {
       }
       case Left(error_message) => {
         print(error_message)
-        fail("could not find first array in second array")
+        fail("could not find first array in second array\n")
       }
     }
 
@@ -291,7 +291,7 @@ class Test extends FunSuite {
       }
       case Left(error_message) => {
         print(error_message)
-        fail("could not find first array in second array")
+        fail("could not find first array in second array\n")
       }
     }
 
@@ -301,7 +301,7 @@ class Test extends FunSuite {
       }
       case Left(error_message) => {
         print(error_message)
-        fail("could not find third array in fourth array")
+        fail("could not find third array in fourth array\n")
       }
     }
 
@@ -311,17 +311,17 @@ class Test extends FunSuite {
       }
       case Left(error_message) => {
         print(error_message)
-        fail("could not find second array in fifth array")
+        fail("could not find second array in fifth array\n")
       }
     }
 
     ESFAArrayOp().lookUp(state_and_handle._1, 5, 1) match {
       case Right(value) => {
-        fail("You shouldn't have a value with index 1 in sixth array")
+        fail("You shouldn't have a value with index 1 in sixth array\n")
       }
       case Left(error_message) => {
         print(error_message)
-        print("Success - you should in fact have an error here, as there is no value with index 1 in sixth array.")
+        print("Success - you should in fact have an error here, as there is no value with index 1 in sixth array.\n")
       }
     }
 
@@ -447,8 +447,10 @@ class Test extends FunSuite {
       }
       case Left(error_message) => {
         print(error_message)
-        fail("could not find first array")
+        fail("Could not find first array\n")
       }
     }
+
+    print("Conclusion of test")
   }
 }

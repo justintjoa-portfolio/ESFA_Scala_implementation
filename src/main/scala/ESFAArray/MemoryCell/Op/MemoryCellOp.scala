@@ -43,24 +43,28 @@ case class MemoryCellOp() {
     return (Left("There is no array defined in this cell. Aborting."), state)
   }
 
-  def congrueUp(state: MemoryCellState, code_of_new_entry: Int): MemoryCellState = { // for congruing elements after adding an array entry
+  def congrueUp(state: MemoryCellState, code_of_updated_entry: Option[Int]): MemoryCellState = { // for congruing elements after adding an array entry
     if (state.mark) {
       state.mark = false;
       return state;
     }
-    if (state.arrDef) {
-      if (state.array_code >= code_of_new_entry) {
-        state.array_code += 1
+    code_of_updated_entry match {
+      case Some(code) => {
+        if (state.arrDef) {
+          if (state.array_code > code) {
+            state.array_code += 1
+          }
+        }
+        if (state.eltDef) {
+          if (state.low > code) {
+            state.low += 1
+          }
+          if (state.high >= code) {
+            state.high += 1
+          }
+        }
       }
-    }
-    if (state.eltDef) {
-      // explained in section 6.4.1
-      if (state.low >= code_of_new_entry) {
-        state.low += 1
-      }
-      if (state.high >= code_of_new_entry) {
-        state.high += 1
-      }
+      case None => {}
     }
     return state
   }
@@ -77,7 +81,7 @@ case class MemoryCellOp() {
         state.low -= 1
         state.high -= 1
       }
-      if (state.low <= code_of_deleted_entry && code_of_deleted_entry <= state.high) {
+      else if (state.low <= code_of_deleted_entry && code_of_deleted_entry <= state.high) {
         state.high -= 1
         if (state.high - state.low < 0) {
           state.eltDef = false;
