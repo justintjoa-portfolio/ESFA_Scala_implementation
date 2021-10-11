@@ -39,16 +39,24 @@ case class ESFAArrayOp() {
 
     var code_of_updated_entry: Option[Int] = None
     var new_handle: Int = 0
-    handle match {
+    var matched_handle: Option[Int] = handle
+    matched_handle match {
       case Some(target_handle) => {
         lookUp(state, target_handle, index) match {
-          case Right(persisting_value) => {
-            if (value == persisting_value) {
-              return (state, Left("This key and value has already been defined."))
+          case Right(old_value) => {
+            if (old_value == value) {
+              return (state, Left("This key and value pair already exists."))
             }
+            matched_handle = prevRank(state, target_handle)
           }
           case Left(_) => {}
         }
+      }
+      case None => {}
+    }
+
+    matched_handle match {
+      case Some(target_handle) => {
         val oldArrayCodeAndRank = encode(state, target_handle)
         oldArrayCodeAndRank match {
           case Right(code_and_rank) => {
@@ -312,7 +320,7 @@ case class ESFAArrayOp() {
     }
   }
 
-  def prevRank(state: ESFAArrayState, array_handle: Int): Either[String, Int] = {
+  def prevRank(state: ESFAArrayState, array_handle: Int): Option[Int] = {
     var code_and_rank = encode(state, array_handle)
     code_and_rank match {
       case Right(code_rank) => {
@@ -325,30 +333,34 @@ case class ESFAArrayOp() {
             memoryCell
           }
         )
-        var highest_rank: Option[Int] = None
+        var highest_prev_rank: Option[Int] = None
         var handle: Option[Int] = None
         state.memoryCellStack.mapInPlace(
           (memoryCell) => {
-            if (memoryCell.state.mark && memoryCell.state.rank < rank) {
-              highest_rank match {
-                case (Some(highest_tracked_rank)) => {
-                  if (highest_tracked_rank < memoryCell.state) {
-                    highest_rank = Some(memoryCell.state.rank)
+            if (memoryCell.state.mark) {
+              if (memoryCell.state.rank < rank) {
+                highest_prev_rank match {
+                  case (Some(highest_tracked_rank)) => {
+                    if (highest_tracked_rank < memoryCell.state.rank) {
+                      highest_prev_rank = Some(memoryCell.state.rank)
+                      handle = Some(memoryCell.state.handle)
+                    }
+                  }
+                  case None => {
+                    highest_prev_rank = Some(memoryCell.state.rank)
                     handle = Some(memoryCell.state.handle)
                   }
                 }
-                case None => {
-                  highest_rank = Some(memoryCell.state.rank)
-                  handle = Some(memoryCell.state.handle)
-                }
               }
+              memoryCell.state.mark = false
             }
             memoryCell
           }
         )
+        return handle
       }
-      case Left(error_message) => {
-        return Left(error_message)
+      case Left(_) => {
+        return None
       }
     }
   }
