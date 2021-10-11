@@ -72,81 +72,99 @@ case class ESFAArrayOp {
         return (true, state, new_handle)
       }
       case None => return (false, state, None)
-  }
+    }
 
-  def lookUp(state: ESFAArrayState, array_handle: Int, index: Int): Option[Int] = {
-    val code = encode(state, array_handle)
-    code match {
-      case Some(array_code) => {
-        state.memoryCellStack.mapInPlace(
-          (memoryCell) => {
-            if ((memoryCell.state.index == index)  && (array_code >= memoryCell.state.low) && (array_code <= memoryCell.state.high)) {
-              memoryCell.state.mark = true;
+    def lookUp(state: ESFAArrayState, array_handle: Int, index: Int): Option[Int] = {
+      val code = encode(state, array_handle)
+      code match {
+        case Some(array_code) => {
+          state.memoryCellStack.mapInPlace(
+            (memoryCell) => {
+              if ((memoryCell.state.index == index) && (array_code >= memoryCell.state.low) && (array_code <= memoryCell.state.high)) {
+                memoryCell.state.mark = true;
+              }
+              memoryCell
             }
-            memoryCell
-          }
-        )
-      }
-      case None => {
-        return None
-      }
-    }
-    var result: Option[Int] = None
-    var highest_rank = 0
-    state.memoryCellStack.mapInPlace(
-      (memoryCell) => {
-        if (memoryCell.state.mark) {
-          if (memoryCell.state.rank > highest_rank) {
-            highest_rank = memoryCell.state.rank
-            result = Some(memoryCell.state.value)
-          }
-          memoryCell.state.mark = false;
+          )
         }
-        memoryCell
+        case None => {
+          return None
+        }
       }
-    )
-    return result
-  }
-
-  def delete(state: ESFAArrayState, array_handle: Int): (Boolean, ESFAArrayState) = {
-    if (array_handle > maxHandle) {
-      return (false, state)
-    }
-    val deleted_array_code = state.memoryCellStack(array_handle).deAllocate(array_handle)
-    deleted_array_code match {
-      case Some(deleted_array) => {
-        state.memoryCellStack.mapInPlace(
-          (memoryCell) => {
-            memoryCell.congrueDown(deleted_array)
-            memoryCell
+      var result: Option[Int] = None
+      var highest_rank = 0
+      state.memoryCellStack.mapInPlace(
+        (memoryCell) => {
+          if (memoryCell.state.mark) {
+            if (memoryCell.state.rank > highest_rank) {
+              highest_rank = memoryCell.state.rank
+              result = Some(memoryCell.state.value)
+            }
+            memoryCell.state.mark = false;
           }
-        )
-        return (true, state)
-      }
-      case None => {
+          memoryCell
+        }
+      )
+      return result
+    }
+
+    def delete(state: ESFAArrayState, array_handle: Int): (Boolean, ESFAArrayState) = {
+      if (array_handle > maxHandle) {
         return (false, state)
       }
-    }
-  }
-
-
-  def nextDef(state: ESFAArrayState, array_handle: Int, prev_rank: Int) : Option[(Int, Int)] = {
-    // on this
-    encode(state, array_handle) match {
-      case Some(code) => {
-        state.memoryCellStack.mapInPlace(
-          (memoryCell) => {
-            if ((code >= memoryCell.state.low) && (code <= memoryCell.state.high)) {
-              memoryCell.state.mark = true;
+      val deleted_array_code = state.memoryCellStack(array_handle).deAllocate(array_handle)
+      deleted_array_code match {
+        case Some(deleted_array) => {
+          state.memoryCellStack.mapInPlace(
+            (memoryCell) => {
+              memoryCell.congrueDown(deleted_array)
+              memoryCell
             }
-            memoryCell
-          }
-        )
+          )
+          return (true, state)
+        }
+        case None => {
+          return (false, state)
+        }
       }
-      case None => {
-        return None
+    }
+
+
+    def nextDef(state: ESFAArrayState, array_handle: Int, prev_index: Int): Option[(Int, Int)] = {
+      // on this
+      var lowest_next_index: Option[Int] = None
+      var next_subarray: Option[(Int, Int)] = None // contains subarray's corresponding handle and code
+
+      encode(state, array_handle) match {
+        case Some(code) => {
+          state.memoryCellStack.foreach(
+            (memoryCell) => {
+              if ((code >= memoryCell.state.low) && (code <= memoryCell.state.high)) {
+                if (memoryCell.state.index > prev_index) {
+                  val potential_index = memoryCell.state.index
+                  lowest_next_index match {
+                    case Some(lowest_index) => {
+                      if (lowest_index > potential_index) {
+                        lowest_next_index = Some(potential_index)
+                        next_subarray = Some(memoryCell.state.handle, memoryCell.state.array_code)
+                      }
+                    }
+                    case None => {
+                      lowest_next_index = Some(potential_index)
+                      next_subarray = Some(memoryCell.state.handle, memoryCell.state.array_code)
+                    }
+                  }
+                }
+              }
+            }
+          )
+          next_subarray
+        }
+        case None => {
+          return None
+        }
       }
     }
   }
-  }
-}
+
+
