@@ -36,10 +36,19 @@ case class ESFAArrayOp() {
       }
     }
 
+
     var code_of_updated_entry: Option[Int] = None
     var new_handle: Int = 0
     handle match {
       case Some(target_handle) => {
+        lookUp(state, target_handle, index) match {
+          case Right(persisting_value) => {
+            if (value == persisting_value) {
+              return (state, Left("This key and value has already been defined."))
+            }
+          }
+          case Left(_) => {}
+        }
         val oldArrayCodeAndRank = encode(state, target_handle)
         oldArrayCodeAndRank match {
           case Right(code_and_rank) => {
@@ -227,11 +236,11 @@ case class ESFAArrayOp() {
 
     def minDef(state: ESFAArrayState, array_handle: Int): Either[String, (Int, Int, Int)] = {
       var lowest_defined_index: Option[Int] = None
-      var min_defined_subarray: Option[(Int, Int, Int)] = None // contains subarray's corresponding handle and code
+      var min_defined_subarray: Option[(Int, Int, Int)] = None // contains subarray's corresponding handle, index, and value
 
       encode(state, array_handle) match {
         case Right(code_and_rank) => {
-          val (code, _) = code_and_rank
+          val (code, rank) = code_and_rank
           state.memoryCellStack.foreach(
             (memoryCell) => {
               if ((code >= memoryCell.state.low) && (code <= memoryCell.state.high) && (memoryCell.state.eltDef)) {
@@ -266,7 +275,7 @@ case class ESFAArrayOp() {
 
   def maxDef(state: ESFAArrayState, array_handle: Int): Either[String, (Int, Int, Int)] = {
     var highest_defined_index: Option[Int] = None
-    var highest_defined_subarray: Option[(Int, Int, Int)] = None // contains subarray's corresponding handle and code
+    var highest_defined_subarray: Option[(Int, Int, Int)] = None // contains subarray's corresponding handle, index, and value
 
     encode(state, array_handle) match {
       case Right(code_and_rank) => {
