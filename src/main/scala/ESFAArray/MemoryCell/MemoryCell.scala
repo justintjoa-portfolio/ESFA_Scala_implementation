@@ -23,13 +23,13 @@ class MemoryCell(handle: Int) {
     mark = false
   )
 
-  def allocate(index: Int, value: Int, prev_array_code: Option[Int], prev_array_rank: Option[Int]): Option[Int] = {
-    val (new_code, new_state) = MemoryCellOp().allocate(state, index, value, prev_array_code, prev_array_rank)
+  def allocate(index: Int, value: Int, prev_array_code_and_rank: Option[(Int, Int)]): Either[String, Int] = {
+    val (code, new_state) = MemoryCellOp().allocate(state, index, value, prev_array_code_and_rank)
     state = new_state
-    return new_code
+    return code
   }
 
-  def deAllocate(handle: Int): Option[Int] = {
+  def deAllocate(handle: Int): Either[String, Int]= {
     val (code, new_state) = MemoryCellOp().deAllocate(state)
     state = new_state
     return code

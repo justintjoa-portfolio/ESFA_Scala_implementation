@@ -7,37 +7,35 @@ case class ESFAArray() {
 
   private var state = ESFAArrayState()
 
-  def update(handle: Option[Int], index: Int, value: Int): (Boolean, Option[Int]) = {
-    val (didUpdate, newstate, new_handle) = ESFAArrayOp().update(state, handle, index, value)
-    if (didUpdate) {
-      state = newstate
-    }
-    return (didUpdate, new_handle)
+  def update(handle: Option[Int], index: Int, value: Int): Either[String, Int] = {
+    val (newstate, new_handle) = ESFAArrayOp().update(state, handle, index, value)
+    state = newstate
+    return new_handle
   }
 
-  def lookUp(handle: Int, index: Int): Option[Int] = {
+  def lookUp(handle: Int, index: Int): Either[String, Int] = {
     ESFAArrayOp().lookUp(state, handle, index)
   }
 
-  def delete(array_handle: Int): Boolean = {
-    val (didDelete, new_state) = ESFAArrayOp().delete(state, array_handle)
+  def delete(array_handle: Int): Option[String] = {
+    val (deleteMessage, new_state) = ESFAArrayOp().delete(state, array_handle)
     state = new_state
-    return didDelete
+    return deleteMessage
   }
 
-  def nextDef(array_handle: Int, prev_index: Int): Option[(Int, Int, Int)]  = {
+  def nextDef(array_handle: Int, prev_index: Int): Either[String, (Int, Int, Int)]  = {
     ESFAArrayOp().nextDef(state, array_handle, prev_index)
   }
 
-  def prevDef(array_handle: Int, anterior_index: Int): Option[(Int, Int, Int)] = {
+  def prevDef(array_handle: Int, anterior_index: Int): Either[String, (Int, Int, Int)] = {
     ESFAArrayOp().prevDef(state, array_handle, anterior_index)
   }
 
-  def minDef(array_handle: Int): Option[(Int, Int, Int)] = {
+  def minDef(array_handle: Int): Either[String, (Int, Int, Int)] = {
     ESFAArrayOp().minDef(state, array_handle)
   }
 
-  def maxDef(array_handle: Int): Option[(Int, Int, Int)] = {
+  def maxDef(array_handle: Int): Either[String, (Int, Int, Int)] = {
     ESFAArrayOp().maxDef(state, array_handle)
   }
 

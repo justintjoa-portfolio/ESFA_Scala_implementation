@@ -8,77 +8,86 @@ import scala.math.Ordered.orderingToOrdered
 case class ESFAArrayOp {
   val maxHandle = 99
 
-  def encode(state: ESFAArrayState, handle: Int): Option[Int] = {
+  def encode(state: ESFAArrayState, handle: Int): Either[String, (Int, Int)] = {
     if (handle >= maxHandle) {
-      return None
+      return Left("This handle goes beyond the Memory Cells allocated. Aborting.")
     }
     val targetCell = state.memoryCellStack(handle)
     if (targetCell.state.arrDef) {
-      return Some(targetCell.state.array_code)
+      return Right(targetCell.state.array_code, targetCell.state.rank)
     }
-    return None
+    return Left("There is no array defined in this memory cell.")
   }
 
 
   // Return the handle as we aren't doing a system tracking of legible handles
-  def update(state: ESFAArrayState, handle: Option[Int], index: Int, value: Int): (Boolean, ESFAArrayState, Option[Int]) = {
+  def update(state: ESFAArrayState, handle: Option[Int], index: Int, value: Int): (ESFAArrayState, Either[String, Int]) = {
     @tailrec
-    def findNextAvailableCell(target_handle: Int, code: Option[Int], index: Int, value: Int): (Option[Int], Option[Int]) = {
+    def findNextAvailableCell(target_handle: Int, code_and_rank: Option[(Int, Int)], index: Int, value: Int): (Either[String, (Int, Int)]) = {
       if (target_handle > maxHandle) {
-        return (None, None)
+        return Left("No memory cells are free to allocate this new element")
       }
-      var new_code = state.memoryCellStack(target_handle).allocate(index, value, code)
-      if (new_code.isDefined) {
-        return (Some(target_handle), new_code);
-      }
-      else {
-        var new_target_handle = target_handle + 1
-        return findNextAvailableCell(new_target_handle, code, index, value)
+      state.memoryCellStack(target_handle).allocate(index, value, code_and_rank) match {
+        case Right(new_code) =>
+          return Right(target_handle, new_code)
+        case Left(_) =>
+          var new_target_handle = target_handle + 1
+          return findNextAvailableCell(new_target_handle, code_and_rank, index, value)
       }
     }
 
-    var new_code: Option[Int] = None
-    var new_handle: Option[Int] = None
+    var new_code: Int = 0
+    var new_handle: Int = 0
     handle match {
       case Some(target_handle) => {
         val oldArrayCode = encode(state, target_handle)
         oldArrayCode match {
-          case Some(old_code) => {
-            val (n_handle, n_code) = findNextAvailableCell(0, Some(old_code), index, value)
-            new_code = n_code
-            new_handle = n_handle
+          case Right(code_and_rank) => {
+            findNextAvailableCell(0, Some(code_and_rank), index, value) match {
+              case Right(handle_and_code) => {
+                val (code, handle) = handle_and_code
+                new_code = code
+                new_handle = handle
+              }
+              case Left(error_message) => {
+                return (state, Left(error_message))
+              }
+            }
           }
-          case None => {
-            return (false, state, None)
+          case Left(error_message) => {
+            return (state, Left(error_message))
           }
         }
       }
       case None => {
-        val (n_handle, n_code) = findNextAvailableCell(0, None, index, value)
-        new_code = n_code
-        new_handle = n_handle
+        findNextAvailableCell(0, None, index, value) match {
+          case Right(handle_and_code) => {
+            val (code, handle) = handle_and_code
+            new_code = code
+            new_handle = handle
+          }
+          case Left(error_message) => {
+            return (state, Left(error_message))
+          }
+        }
       }
     }
 
-    new_code match {
-      case Some(new_confirmed_code) => {
-        // "Congruing" in all other cells is performed by tmap in actual implementation
-        state.memoryCellStack.mapInPlace(
-          (memoryCell) => {
-            memoryCell.congrueUp(new_confirmed_code)
-            memoryCell
-          }
-        )
-        return (true, state, new_handle)
+    // "Congruing" in all other cells is performed by tmap in actual implementation
+    state.memoryCellStack.mapInPlace(
+      (memoryCell) => {
+        memoryCell.congrueUp(new_code)
+        memoryCell
       }
-      case None => return (false, state, None)
-    }
+    )
+    return (state, Right(new_handle))
   }
 
-    def lookUp(state: ESFAArrayState, array_handle: Int, index: Int): Option[Int] = {
-      val code = encode(state, array_handle)
-      code match {
-        case Some(array_code) => {
+    def lookUp(state: ESFAArrayState, array_handle: Int, index: Int): Either[String, Int] = {
+      val code_and_rank = encode(state, array_handle)
+      code_and_rank match {
+        case Right(array_code_and_rank) => {
+          val (array_code, _) = array_code_and_rank
           state.memoryCellStack.mapInPlace(
             (memoryCell) => {
               if ((memoryCell.state.index == index) && (array_code >= memoryCell.state.low) && (array_code <= memoryCell.state.high)) {
@@ -88,8 +97,8 @@ case class ESFAArrayOp {
             }
           )
         }
-        case None => {
-          return None
+        case Left(error_message) => {
+          return Left(error_message)
         }
       }
       var result: Option[Int] = None
@@ -106,37 +115,44 @@ case class ESFAArrayOp {
           memoryCell
         }
       )
-      return result
+      result match {
+        case Some(value) => {
+          return Right(value)
+        }
+        case None =>
+          return Left("Element is not defined")
+      }
     }
 
-    def delete(state: ESFAArrayState, array_handle: Int): (Boolean, ESFAArrayState) = {
+    def delete(state: ESFAArrayState, array_handle: Int): (Option[String], ESFAArrayState) = {
       if (array_handle > maxHandle) {
-        return (false, state)
+        return (Some("Array handle is beyond the allocated memory cells. Aborting"), state)
       }
       val deleted_array_code = state.memoryCellStack(array_handle).deAllocate(array_handle)
       deleted_array_code match {
-        case Some(deleted_array) => {
+        case Right(deleted_array) => {
           state.memoryCellStack.mapInPlace(
             (memoryCell) => {
               memoryCell.congrueDown(deleted_array)
               memoryCell
             }
           )
-          return (true, state)
+          return (None, state)
         }
-        case None => {
-          return (false, state)
+        case Left(error_message) => {
+          return (Some(error_message), state)
         }
       }
     }
 
 
-    def nextDef(state: ESFAArrayState, array_handle: Int, prev_index: Int): Option[(Int, Int, Int)] = {
+    def nextDef(state: ESFAArrayState, array_handle: Int, prev_index: Int): Either[String, (Int, Int, Int)] = {
       var lowest_next_index: Option[Int] = None
       var next_subarray: Option[(Int, Int, Int)] = None // contains subarray's corresponding handle, index, and value
 
       encode(state, array_handle) match {
-        case Some(code) => {
+        case Right(code_and_rank) => {
+          val (code, _) = code_and_rank
           state.memoryCellStack.foreach(
             (memoryCell) => {
               if ((code >= memoryCell.state.low) && (code <= memoryCell.state.high) && (memoryCell.state.eltDef)) {
@@ -158,20 +174,26 @@ case class ESFAArrayOp {
               }
             }
           )
-          next_subarray
+          next_subarray match {
+            case Some(sub_array_representation) =>
+              return Right(sub_array_representation)
+            case None =>
+              return Left("The next definition is not defined.")
+          }
         }
-        case None => {
-          return None
+        case Left(error_message) => {
+          return Left(error_message)
         }
       }
     }
 
-    def prevDef(state: ESFAArrayState, array_handle: Int, anterior_index: Int): Option[(Int, Int, Int)] = {
+    def prevDef(state: ESFAArrayState, array_handle: Int, anterior_index: Int): Either[String, (Int, Int, Int)]  = {
       var lowest_prev_index: Option[Int] = None
       var prev_subarray: Option[(Int, Int, Int)] = None // contains subarray's corresponding handle, index, and value
 
       encode(state, array_handle) match {
-        case Some(code) => {
+        case Right(code_and_rank) => {
+          val (code, _) = code_and_rank
           state.memoryCellStack.foreach(
             (memoryCell) => {
               if ((code >= memoryCell.state.low) && (code <= memoryCell.state.high) && (memoryCell.state.eltDef)) {
@@ -193,20 +215,26 @@ case class ESFAArrayOp {
               }
             }
           )
-          prev_subarray
+          prev_subarray match {
+            case Some(sub_array_representation) =>
+              return Right(sub_array_representation)
+            case None =>
+              return Left("The next definition is not defined.")
+          }
         }
-        case None => {
-          return None
+        case Left(error_message) => {
+          return Left(error_message)
         }
       }
     }
 
-    def minDef(state: ESFAArrayState, array_handle: Int): Option[(Int, Int, Int)] = {
+    def minDef(state: ESFAArrayState, array_handle: Int): Either[String, (Int, Int, Int)] = {
       var lowest_defined_index: Option[Int] = None
       var min_defined_subarray: Option[(Int, Int, Int)] = None // contains subarray's corresponding handle and code
 
       encode(state, array_handle) match {
-        case Some(code) => {
+        case Right(code_and_rank) => {
+          val (code, _) = code_and_rank
           state.memoryCellStack.foreach(
             (memoryCell) => {
               if ((code >= memoryCell.state.low) && (code <= memoryCell.state.high) && (memoryCell.state.eltDef)) {
@@ -226,20 +254,26 @@ case class ESFAArrayOp {
               }
             }
           )
-          min_defined_subarray
+          min_defined_subarray match {
+            case Some(sub_array_representation) =>
+              return Right(sub_array_representation)
+            case None =>
+              return Left("The next definition is not defined.")
+          }
         }
-        case None => {
-          return None
+        case Left(error_message) => {
+          return Left(error_message)
         }
       }
     }
 
-  def maxDef(state: ESFAArrayState, array_handle: Int): Option[(Int, Int, Int)] = {
+  def maxDef(state: ESFAArrayState, array_handle: Int): Either[String, (Int, Int, Int)] = {
     var highest_defined_index: Option[Int] = None
     var highest_defined_subarray: Option[(Int, Int, Int)] = None // contains subarray's corresponding handle and code
 
     encode(state, array_handle) match {
-      case Some(code) => {
+      case Right(code_and_rank) => {
+        val (code, _) = code_and_rank
         state.memoryCellStack.foreach(
           (memoryCell) => {
             if ((code >= memoryCell.state.low) && (code <= memoryCell.state.high) && (memoryCell.state.eltDef)) {
@@ -259,10 +293,15 @@ case class ESFAArrayOp {
             }
           }
         )
-        highest_defined_subarray
+        highest_defined_subarray match {
+          case Some(sub_array_representation) =>
+            return Right(sub_array_representation)
+          case None =>
+            return Left("The next definition is not defined.")
+        }
       }
-      case None => {
-        return None
+      case Left(error_message) => {
+        return Left(error_message)
       }
     }
   }
