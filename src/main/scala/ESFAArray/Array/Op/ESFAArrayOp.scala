@@ -312,6 +312,47 @@ case class ESFAArrayOp() {
     }
   }
 
+  def prevRank(state: ESFAArrayState, array_handle: Int): Either[String, Int] = {
+    var code_and_rank = encode(state, array_handle)
+    code_and_rank match {
+      case Right(code_rank) => {
+        val (code, rank) = code_rank
+        state.memoryCellStack.mapInPlace(
+          (memoryCell) => {
+            if (memoryCell.state.low <= code && memoryCell.state.high >= code) {
+              memoryCell.state.mark = true
+            }
+            memoryCell
+          }
+        )
+        var highest_rank: Option[Int] = None
+        var handle: Option[Int] = None
+        state.memoryCellStack.mapInPlace(
+          (memoryCell) => {
+            if (memoryCell.state.mark && memoryCell.state.rank < rank) {
+              highest_rank match {
+                case (Some(highest_tracked_rank)) => {
+                  if (highest_tracked_rank < memoryCell.state) {
+                    highest_rank = Some(memoryCell.state.rank)
+                    handle = Some(memoryCell.state.handle)
+                  }
+                }
+                case None => {
+                  highest_rank = Some(memoryCell.state.rank)
+                  handle = Some(memoryCell.state.handle)
+                }
+              }
+            }
+            memoryCell
+          }
+        )
+      }
+      case Left(error_message) => {
+        return Left(error_message)
+      }
+    }
+  }
+
   }
 
 
