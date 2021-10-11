@@ -4,7 +4,6 @@ import org.scalatest.FunSuite
 
 class Test extends FunSuite {
 
-
   test("UpdateBasicTest") {
     val emptyArrayState: ESFAArrayState = ESFAArrayState()
     assert(emptyArrayState.memoryCellStack(0).state.rank === 0)
@@ -450,7 +449,93 @@ class Test extends FunSuite {
         fail("Could not find first array\n")
       }
     }
+  }
 
-    print("Conclusion of test")
+  test("ESFATransversalTest") {
+    print("start transversal test\n")
+    val emptyArrayState: ESFAArrayState = ESFAArrayState()
+
+    var transversal_state = emptyArrayState
+    transversal_state = ESFAArrayOp().update(transversal_state, None, 0, 10)._1
+    transversal_state = ESFAArrayOp().update(transversal_state, Some(0), 3, 14)._1
+    transversal_state = ESFAArrayOp().update(transversal_state, Some(1), 2, 9)._1
+    transversal_state = ESFAArrayOp().update(transversal_state, Some(2), 20, 21)._1
+    transversal_state = ESFAArrayOp().update(transversal_state, Some(3), 15, 7)._1
+    transversal_state = ESFAArrayOp().update(transversal_state, Some(2), 29, 7)._1
+    transversal_state = ESFAArrayOp().update(transversal_state, Some(4), 95, 23)._1
+    transversal_state = ESFAArrayOp().update(transversal_state, Some(6), 18, 7)._1
+
+    ESFAArrayOp().minDef(transversal_state, 7) match {
+      case Right(defStats) => {
+        assert(defStats._1 === 0)
+        assert(defStats._2 === 0)
+        assert(defStats._3 === 10)
+      }
+      case Left(error_message) => {
+        print(error_message)
+        fail("Did not find def\n")
+      }
+    }
+
+    ESFAArrayOp().nextDef(transversal_state, 7, 0) match {
+      case Right(defStats) => {
+        assert(defStats._1 === 2)
+        assert(defStats._2 === 2)
+        assert(defStats._3 === 9)
+      }
+      case Left(error_message) => {
+        print(error_message)
+        fail("Did not find def\n")
+      }
+    }
+
+    ESFAArrayOp().nextDef(transversal_state, 7, 2) match {
+      case Right(defStats) => {
+        assert(defStats._1 === 1)
+        assert(defStats._2 === 3)
+        assert(defStats._3 === 14)
+      }
+      case Left(error_message) => {
+        print(error_message)
+        fail("Did not find def\n")
+      }
+    }
+
+    ESFAArrayOp().prevDef(transversal_state, 7, 3) match {
+      case Right(defStats) => {
+        assert(defStats._1 === 2)
+        assert(defStats._2 === 2)
+        assert(defStats._3 === 9)
+      }
+      case Left(error_message) => {
+        print(error_message)
+        fail("Did not find def\n")
+      }
+    }
+
+    ESFAArrayOp().maxDef(transversal_state, 7) match {
+      case Right(defStats) => {
+        assert(defStats._1 === 6)
+        assert(defStats._2 === 95)
+        assert(defStats._3 === 23)
+      }
+      case Left(error_message) => {
+        print(error_message)
+        fail("Did not find def\n")
+      }
+    }
+
+    ESFAArrayOp().prevDef(transversal_state, 7, 95) match {
+      case Right(defStats) => {
+        assert(defStats._1 === 3)
+        assert(defStats._2 === 20)
+        assert(defStats._3 === 21)
+      }
+      case Left(error_message) => {
+        print(error_message)
+        fail("Did not find def\n")
+      }
+    }
+
   }
 }
