@@ -538,15 +538,68 @@ class Test extends FunSuite {
 
   }
 
-  test("Duplicate entries") {
+  test("Updated key test") {
     val emptyArrayState: ESFAArrayState = ESFAArrayState()
 
-    var dupe_state = emptyArrayState
-    dupe_state = ESFAArrayOp().update(dupe_state, None, 0, 5)._1
-    dupe_state = ESFAArrayOp().update(dupe_state, Some(0), 0, 10)._1
-    if (! dupe_state.memoryCellStack(1).state.arrDef) {
-      fail("Should have new array here")
+    var update_key_state = emptyArrayState
+    update_key_state = ESFAArrayOp().update(update_key_state, None, 0, 5)._1
+    update_key_state = ESFAArrayOp().update(update_key_state, Some(0), 0, 10)._1
+    ESFAArrayOp().lookUp(update_key_state, 0, 0) match {
+      case Left(error_message) => {
+        print(error_message)
+        fail("Should have had a value here.")
+      }
+      case Right(value) => {
+        assert(value === 5)
+      }
+    }
+
+    ESFAArrayOp().lookUp(update_key_state, 1, 0) match {
+      case Left(error_message) => {
+        print(error_message)
+        fail("Should have had a value here.")
+      }
+      case Right(value) => {
+        assert(value === 10)
+      }
     }
 
   }
+
+  test("Duplicate key and value test") {
+    val emptyArrayState: ESFAArrayState = ESFAArrayState()
+
+    var update_key_state = emptyArrayState
+    update_key_state = ESFAArrayOp().update(update_key_state, None, 0, 5)._1
+    update_key_state = ESFAArrayOp().update(update_key_state, Some(0), 0, 5)._1
+    ESFAArrayOp().lookUp(update_key_state, 0, 0) match {
+      case Left(error_message) => {
+        print(error_message)
+        fail("Should have had a value here.")
+      }
+      case Right(value) => {
+        assert(value === 5)
+      }
+    }
+
+    ESFAArrayOp().lookUp(update_key_state, 1, 0) match {
+      case Left(error_message) => {
+        print(error_message)
+        fail("Should have had a value here.")
+      }
+      case Right(value) => {
+        assert(value === 5)
+      }
+    }
+
+    ESFAArrayOp().lookUp(update_key_state, 1, 10) match {
+      case Left(error_message) => {
+        print("Success - no index defined for 10")
+      }
+      case Right(value) => {
+        fail("Shouldn't have a value for this index!")
+      }
+    }
+  }
+
 }
